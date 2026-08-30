@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import successCheckIcon from '../../../assets/icons/success-check.svg'
-import closeIcon from '../../../assets/icons/close.svg'
+import closeIcon from '../../../assets/icons/Close.svg'
 import './Toast.css'
 
 export interface ToastProps {
