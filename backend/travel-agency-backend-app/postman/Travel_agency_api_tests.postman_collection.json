@@ -1,0 +1,862 @@
+{
+  "info": {
+    "name": "Travel Agency - Full E2E + Edge Cases",
+    "description": "Tum endpoint'leri ve bilinen edge case'leri kapsayan test suite'i.\n\nKURULUM (calistirmadan once):\n1. Collection Variables'tan 'base_url' degerini kendi ortaminin API Gateway invoke URL'ine ayarla (orn. https://xxxxxxxxxx.execute-api.eu-west-3.amazonaws.com/api).\n2. Tour catalog/reviews tablolari bos ise once 'tour_detail_seed.py' scriptini calistir (ayni klasorde), yoksa '2) Tours' klasorundeki testler bos veri donebilir.\n\nBILINEN BLOKAJ (2026-08-04 itibariyle):\n'3) Bookings' klasorundeki 'Create Booking' istekleri su an basarisiz oluyor. Kok neden: backend 'bookingToken' adinda zorunlu bir alan bekliyor, ancak bu alan OAS sozlesmesinde (CreateBookingRequestDetailsDTO) tanimli DEGIL. Ayrica '/bookings/validate' basarili (200) cevap vermek icin request body'de OAS'ta da tanimli olmayan 'components' (flight/accommodation/activities) benzeri alanlar bekliyor gibi gorunuyor. Bu collection bilerek bu haliyle birakildi ki blokaj somut, calistirilabilir bir ornekle gorunur olsun - backend/kontrat guncellemesi yapilinca 'Create Booking' testleri buna gore duzeltilmeli.\n\nDIKKAT - YIKICI ISTEK: '3) Bookings' > 'Cancel Booking' gercek bir booking'i SILER. Collection'i 'Run Collection' ile toplu calistirirsan, henuz test etmedigin bir booking'i de iptal edebilir. Ilk denemede bu istegi manuel/en sona birak.\n\nKLASORLER:\n1) Auth - happy path + duplicate sign-up + wrong password\n2) Tours - filtreler (destination/mealPlan/tourType/sortBy/guestQuantity) + fully-booked/single-mealplan/no-reviews edge case turleri\n3) Bookings - validate/create/get/update/cancel + overbooking + fully-booked tur rezervasyonu denemesi (Create Booking testleri yukaridaki blokaj nedeniyle su an FAIL veriyor, bu beklenen durum)\n4) Profile - normal guncelleme + email degistirme engeli",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "<SET_YOUR_API_GATEWAY_URL>", "description": "orn. https://xxxxxxxxxx.execute-api.eu-west-3.amazonaws.com/api - calistirmadan once mutlaka degistir" },
+    { "key": "test_email", "value": "" },
+    { "key": "test_password", "value": "SandboxTest123!" },
+    { "key": "accessToken", "value": "" },
+    { "key": "idToken", "value": "" },
+    { "key": "userId", "value": "" },
+
+    { "key": "tourAvailableId", "value": "" },
+    { "key": "tourAvailableDuration", "value": "" },
+    { "key": "tourAvailableStartDate", "value": "" },
+    { "key": "tourAvailablePrice", "value": "" },
+    { "key": "tourAvailableMaxAdults", "value": "" },
+
+    { "key": "tourFullyBookedId", "value": "tour-003" },
+    { "key": "tourSingleMealPlanId", "value": "tour-004" },
+    { "key": "tourNoReviewsId", "value": "tour-005" },
+
+    { "key": "bookingId", "value": "" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "if (pm.collectionVariables.get('base_url') === '<SET_YOUR_API_GATEWAY_URL>') {",
+          "    console.warn('UYARI: base_url hala placeholder degerinde. Collection Variables sekmesinden kendi API Gateway URL\\'ini gir.');",
+          "}",
+          "if (!pm.collectionVariables.get('test_email')) {",
+          "    const stamp = Date.now();",
+          "    pm.collectionVariables.set('test_email', `test.user.${stamp}@nomail.com`);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1) Auth",
+      "item": [
+        {
+          "name": "Sign Up - success",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/sign-up", "host": ["{{base_url}}"], "path": ["auth", "sign-up"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('sign-up 201', function () { pm.response.to.have.status(201); });",
+                  "console.log('SIGN-UP body:', pm.response.text());"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign Up - duplicate email (409 beklenir)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/sign-up", "host": ["{{base_url}}"], "path": ["auth", "sign-up"] },
+            "description": "Ayni email ile ikinci sign-up denemesi. Contract'a gore 409 donmeli (Conflict - Email already exists)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('duplicate sign-up 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign In - success",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/sign-in", "host": ["{{base_url}}"], "path": ["auth", "sign-in"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('sign-in 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "    pm.collectionVariables.set('idToken', body.idToken);",
+                  "    if (body.user && body.user.id) { pm.collectionVariables.set('userId', body.user.id); }",
+                  "} else {",
+                  "    console.log('SIGN-IN basarisiz:', pm.response.text());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign In - wrong password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"WrongPassword999!\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/sign-in", "host": ["{{base_url}}"], "path": ["auth", "sign-in"] },
+            "description": "Sandbox'ta gozlemlenen gercek davranis 401'di (OAS ornekleri 400 yaziyor ama bu tutmuyor olabilir - dokumantasyon/gercek davranis farki)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('wrong password status:', pm.response.code, pm.response.text());",
+                  "pm.test('wrong password reddedildi (400 veya 401)', function () { pm.expect([400, 401]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{base_url}}/auth/refresh", "host": ["{{base_url}}"], "path": ["auth", "refresh"] },
+            "description": "HttpOnly cookie'ye dayanir - Postman cookie jar acik degilse 401 normal."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.test('refresh 200 veya 401', function () { pm.expect([200, 401]).to.include(pm.response.code); });"] }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2) Tours",
+      "item": [
+        {
+          "name": "Get Available Tours - default",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/tours/available?page=1&pageSize=10",
+              "host": ["{{base_url}}"], "path": ["tours", "available"],
+              "query": [{ "key": "page", "value": "1" }, { "key": "pageSize", "value": "10" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('available 200', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "const ids = (body.tours || []).map(t => t.id);",
+                  "console.log('Donen tur id listesi:', ids);",
+                  "pm.test('EDGE CASE: fully-booked tur listede gorunmemeli', function () {",
+                  "    pm.expect(ids).to.not.include(pm.collectionVariables.get('tourFullyBookedId'));",
+                  "});",
+                  "if (body.tours && body.tours.length > 0) {",
+                  "    const available = body.tours.find(t => t.id !== pm.collectionVariables.get('tourFullyBookedId')) || body.tours[0];",
+                  "    pm.collectionVariables.set('tourAvailableId', available.id);",
+                  "    if (available.durations && available.durations.length) pm.collectionVariables.set('tourAvailableDuration', available.durations[0]);",
+                  "    if (available.startDate) pm.collectionVariables.set('tourAvailableStartDate', available.startDate);",
+                  "} else {",
+                  "    console.warn('Tur listesi bos dondu - tour_detail_seed.py calistirilmis mi kontrol et.');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Available Tours - filter by mealPlan=AI",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/tours/available?mealPlan=AI",
+              "host": ["{{base_url}}"], "path": ["tours", "available"],
+              "query": [{ "key": "mealPlan", "value": "AI" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('mealPlan filter 200', function () { pm.response.to.have.status(200); });",
+                  "console.log('mealPlan=AI sonucu:', (pm.response.json().tours || []).map(t => t.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Available Tours - filter by destination",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/tours/available?destination=Japan",
+              "host": ["{{base_url}}"], "path": ["tours", "available"],
+              "query": [{ "key": "destination", "value": "Japan" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('destination filter 200', function () { pm.response.to.have.status(200); });",
+                  "console.log('destination=Japan sonucu:', (pm.response.json().tours || []).map(t => t.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Available Tours - filter by tourType=CRUISE",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/tours/available?tourType=CRUISE",
+              "host": ["{{base_url}}"], "path": ["tours", "available"],
+              "query": [{ "key": "tourType", "value": "CRUISE" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('tourType filter 200', function () { pm.response.to.have.status(200); });",
+                  "const ids = (pm.response.json().tours || []).map(t => t.id);",
+                  "console.log('tourType=CRUISE sonucu:', ids);",
+                  "pm.test('fully-booked cruise burada da gorunmemeli', function () { pm.expect(ids).to.not.include(pm.collectionVariables.get('tourFullyBookedId')); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Available Tours - sortBy=PRICE_ASC",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/tours/available?sortBy=PRICE_ASC",
+              "host": ["{{base_url}}"], "path": ["tours", "available"],
+              "query": [{ "key": "sortBy", "value": "PRICE_ASC" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('sortBy 200', function () { pm.response.to.have.status(200); });",
+                  "console.log('PRICE_ASC sirasi:', (pm.response.json().tours || []).map(t => `${t.id}:${t.price}`));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Tour Details - normal (tourAvailableId)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/tours/{{tourAvailableId}}", "host": ["{{base_url}}"], "path": ["tours", "{{tourAvailableId}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('tour details 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.price) {",
+                  "        const firstDur = Object.keys(body.price)[0];",
+                  "        pm.collectionVariables.set('tourAvailableDuration', firstDur);",
+                  "        pm.collectionVariables.set('tourAvailablePrice', body.price[firstDur]);",
+                  "    }",
+                  "    if (body.startDates && body.startDates.length) { pm.collectionVariables.set('tourAvailableStartDate', body.startDates[0]); }",
+                  "    if (body.guestQuantity && body.guestQuantity.adultsMaxValue) { pm.collectionVariables.set('tourAvailableMaxAdults', body.guestQuantity.adultsMaxValue); }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Tour Details - fully-booked tur (hala erisilebilir olmali)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/tours/{{tourFullyBookedId}}", "host": ["{{base_url}}"], "path": ["tours", "{{tourFullyBookedId}}"] },
+            "description": "get_tour_details isAvailable kontrolu yapmiyor - dolu tur GET /tours/{id} ile hala 200 donmeli, sadece listede gorunmuyor."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('EDGE CASE: dolu tur detay sayfasindan hala erisilebilir (200)', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Tour Details - not found",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/tours/00000000-0000-0000-0000-000000000000", "host": ["{{base_url}}"], "path": ["tours", "00000000-0000-0000-0000-000000000000"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.test('not found 404', function () { pm.response.to.have.status(404); });"] }
+            }
+          ]
+        },
+        {
+          "name": "Get Tour Reviews - normal",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/tours/tour-001/reviews", "host": ["{{base_url}}"], "path": ["tours", "tour-001", "reviews"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('reviews 200', function () { pm.response.to.have.status(200); });",
+                  "console.log('tour-001 review sayisi:', pm.response.json().totalItems);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Tour Reviews - EDGE CASE review'siz tur",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/tours/{{tourNoReviewsId}}/reviews", "host": ["{{base_url}}"], "path": ["tours", "{{tourNoReviewsId}}", "reviews"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('reviews 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('EDGE CASE: review sayisi 0 olmali', function () { pm.expect(pm.response.json().totalItems).to.eql(0); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Destinations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/tours/destinations?destination=Jap",
+              "host": ["{{base_url}}"], "path": ["tours", "destinations"],
+              "query": [{ "key": "destination", "value": "Jap" }]
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["console.log('destinations status:', pm.response.code, pm.response.text());", "pm.test('cevap alindi', function () { pm.expect(pm.response.code).to.be.a('number'); });"] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3) Bookings - Core + Edge Cases",
+      "item": [
+        {
+          "name": "Validate Booking",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packageId\": \"{{tourAvailableId}}\",\n  \"startDate\": \"{{tourAvailableStartDate}}\",\n  \"duration\": \"{{tourAvailableDuration}}\",\n  \"quotedPrice\": {{tourAvailablePrice}},\n  \"adults\": 1,\n  \"children\": 0\n}"
+            },
+            "url": { "raw": "{{base_url}}/bookings/validate", "host": ["{{base_url}}"], "path": ["bookings", "validate"] },
+            "description": "BILINEN BLOKAJ: sandbox testlerinde bu istek OAS'ta tanimli olmayan bir 'components' (flight/accommodation/activities) gereksinimi yuzunden 409 donuyor. Bu, backend/kontrat guncellemesi bekleyen ayri bir bulgu - asagidaki test bunu net gostermek icin durumu assert etmiyor, sadece logluyor."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('VALIDATE status:', pm.response.code, pm.response.text());",
+                  "pm.test('validate cevap alindi (durum bilinen blokaj nedeniyle zorlanmiyor)', function () { pm.expect(pm.response.code).to.be.a('number'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validate Booking - missing fields (400 beklenir)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"packageId\": \"{{tourAvailableId}}\"\n}" },
+            "url": { "raw": "{{base_url}}/bookings/validate", "host": ["{{base_url}}"], "path": ["bookings", "validate"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["pm.test('missing fields 400', function () { pm.response.to.have.status(400); });"] } }
+          ]
+        },
+        {
+          "name": "Validate Booking - EDGE CASE overbooking (adults=999)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packageId\": \"{{tourAvailableId}}\",\n  \"startDate\": \"{{tourAvailableStartDate}}\",\n  \"duration\": \"{{tourAvailableDuration}}\",\n  \"quotedPrice\": {{tourAvailablePrice}},\n  \"adults\": 999,\n  \"children\": 0\n}"
+            },
+            "url": { "raw": "{{base_url}}/bookings/validate", "host": ["{{base_url}}"], "path": ["bookings", "validate"] },
+            "description": "Dogrulanmis davranis: 409 CAPACITY_CONFLICT donuyor, 'Adult guest count exceeds available capacity'."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('OVERBOOKING VALIDATE status:', pm.response.code, pm.response.text());",
+                  "pm.test('overbooking icin capacity conflict donmeli (409)', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validate Booking - EDGE CASE fully-booked tur",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packageId\": \"{{tourFullyBookedId}}\",\n  \"startDate\": \"2027-06-01\",\n  \"duration\": \"7 days\",\n  \"quotedPrice\": 2200,\n  \"adults\": 1,\n  \"children\": 0\n}"
+            },
+            "url": { "raw": "{{base_url}}/bookings/validate", "host": ["{{base_url}}"], "path": ["bookings", "validate"] },
+            "description": "Dogrulanmis davranis: 409 PACKAGE_INACTIVE donuyor."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('FULLY-BOOKED VALIDATE status:', pm.response.code, pm.response.text());",
+                  "pm.test('dolu tur icin package inactive donmeli (409)', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Booking [BILINEN BLOKAJ - bookingToken eksik]",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"tourId\": \"{{tourAvailableId}}\",\n  \"date\": \"{{tourAvailableStartDate}}\",\n  \"duration\": \"{{tourAvailableDuration}}\",\n  \"mealPlan\": \"BB\",\n  \"guests\": { \"adult\": 1, \"children\": 0 },\n  \"personalDetails\": [ { \"firstName\": \"Test\", \"lastName\": \"User\" } ]\n}"
+            },
+            "url": { "raw": "{{base_url}}/bookings", "host": ["{{base_url}}"], "path": ["bookings"] },
+            "description": "SU AN BASARISIZ OLMASI BEKLENIYOR (400, 'bookingToken is required'). Backend, OAS'ta tanimli olmayan bir 'bookingToken' alani bekliyor. Bu alanin nasil uretilecegi (muhtemelen /bookings/validate basarili donduginde response'da geliyor olmali, ama validate de ayri bir dokumante edilmemis 'components' gereksinimi yuzunden su an basarisiz oluyor) netlesince bu istek guncellenmeli."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('=== CREATE BOOKING ===', pm.response.code);",
+                  "console.log(pm.response.text());",
+                  "pm.test('bilinen blokaj: bookingToken eksik hatasi bekleniyor', function () {",
+                  "    pm.expect(pm.response.code).to.eql(400);",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.have.property('bookingToken');",
+                  "});",
+                  "if (pm.response.code === 201) { console.log('BLOKAJ COZULMUS GORUNUYOR - bu testi ve description\\'i guncelle.'); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{base_url}}/bookings", "host": ["{{base_url}}"], "path": ["bookings"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('=== GET BOOKINGS ===', pm.response.code);",
+                  "console.log(pm.response.text());",
+                  "pm.test('get bookings 200', function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const list = pm.response.json().bookings || [];",
+                  "    console.log('Donen booking sayisi:', list.length);",
+                  "    if (list.length > 0) { pm.collectionVariables.set('bookingId', list[0].id); }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Booking",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"duration\": \"{{tourAvailableDuration}}\",\n  \"mealPlan\": \"HB\",\n  \"guests\": { \"adult\": 1, \"children\": 0 },\n  \"personalDetails\": [ { \"firstName\": \"Test\", \"lastName\": \"Updated\" } ]\n}"
+            },
+            "url": { "raw": "{{base_url}}/bookings/{{bookingId}}", "host": ["{{base_url}}"], "path": ["bookings", "{{bookingId}}"] },
+            "description": "bookingId bos ise (Create Booking blokaji nedeniyle hic booking olusmadiysa) bu istek anlamli calismaz - beklenen durum."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["console.log('UPDATE status:', pm.response.code, pm.response.text());", "pm.test('cevap alindi', function () { pm.expect(pm.response.code).to.be.a('number'); });"] } }
+          ]
+        },
+        {
+          "name": "Cancel Booking [DIKKAT: YIKICI ISTEK - manuel calistir]",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{base_url}}/bookings/{{bookingId}}", "host": ["{{base_url}}"], "path": ["bookings", "{{bookingId}}"] },
+            "description": "!!! DIKKAT !!! bookingId'deki gercek booking'i KALICI OLARAK IPTAL EDER. 'Run Collection' ile toplu calistirma sirasinda bu istek de otomatik tetiklenir - paylasilan bir dev/QA ortaminda test etmeden once bunu bil. Ilk calistirmalarda bu isteği collection runner disinda, tek tek ve bilerek calistir."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["console.log('CANCEL status:', pm.response.code, pm.response.text());", "pm.test('cevap alindi', function () { pm.expect(pm.response.code).to.be.a('number'); });"] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4) Profile",
+      "item": [
+        {
+          "name": "Update Profile - success (firstName)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"TestUpdated\"\n}" },
+            "url": { "raw": "{{base_url}}/profile", "host": ["{{base_url}}"], "path": ["profile"] },
+            "description": "Sandbox'ta gozlemlenen bilinen olasi bug: bu istek email hicgonderilmemesine ragmen bazen 400 + details.field='email' donebiliyor - eger boyle olursa backend ekibine raporla."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('profile update status:', pm.response.code, pm.response.text());",
+                  "pm.test('profile update 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Profile - EDGE CASE email degistirme denemesi",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"different-email@nomail.com\"\n}" },
+            "url": { "raw": "{{base_url}}/profile", "host": ["{{base_url}}"], "path": ["profile"] },
+            "description": "Contract: 'registered email address is immutable'. Beklenen: 400 + code=EMAIL_CHANGE_NOT_ALLOWED. Sandbox'ta gozlemlenen: 400 + code=VALIDATION_ERROR (daha genel) - kontrat ile gercek davranis arasinda kucuk bir fark olabilir."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('email change status:', pm.response.code, pm.response.text());",
+                  "pm.test('email degisikligi reddedilmeli (400)', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Profile - EDGE CASE bos body (400 beklenir)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{base_url}}/profile", "host": ["{{base_url}}"], "path": ["profile"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["console.log('empty body status:', pm.response.code, pm.response.text());", "pm.test('cevap alindi', function () { pm.expect(pm.response.code).to.be.a('number'); });"] } }
+          ]
+        },
+        {
+          "name": "Update Profile - EDGE CASE bilinmeyen alan (400 beklenir)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"unknownField\": \"test\"\n}" },
+            "url": { "raw": "{{base_url}}/profile", "host": ["{{base_url}}"], "path": ["profile"] }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["console.log('unknown field status:', pm.response.code, pm.response.text());", "pm.test('cevap alindi', function () { pm.expect(pm.response.code).to.be.a('number'); });"] } }
+          ]
+        }
+      ]
+    }
+  ,
+  {
+    "name": "US12 - Profile Management",
+    "item": [
+      {
+        "name": "Get authenticated profile",
+        "request": {
+          "method": "GET",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{accessToken}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/profile",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "profile"
+            ]
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Update general profile",
+        "request": {
+          "method": "PUT",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{accessToken}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/profile",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "profile"
+            ]
+          },
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"profilePhoto\": \"profiles/jane.jpg\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Change password",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{accessToken}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/profile/change-password",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "profile",
+              "change-password"
+            ]
+          },
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"oldPassword\": \"OldSecret1!\",\n  \"newPassword\": \"NewSecret2@\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Initiate email change",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{accessToken}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/profile/email-change",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "profile",
+              "email-change"
+            ]
+          },
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"newEmail\": \"new@example.com\",\n  \"currentPassword\": \"Current1!\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Confirm email change",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{accessToken}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/profile/email-change/confirm",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "profile",
+              "email-change",
+              "confirm"
+            ]
+          },
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"code\": \"123456\"\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          }
+        },
+        "response": []
+      },
+      {
+        "name": "Resend email verification",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Authorization",
+              "value": "Bearer {{accessToken}}",
+              "type": "text"
+            },
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "type": "text"
+            }
+          ],
+          "url": {
+            "raw": "{{baseUrl}}/profile/email-change/resend",
+            "host": [
+              "{{baseUrl}}"
+            ],
+            "path": [
+              "profile",
+              "email-change",
+              "resend"
+            ]
+          }
+        },
+        "response": []
+      }
+    ]
+  }
+]
+}

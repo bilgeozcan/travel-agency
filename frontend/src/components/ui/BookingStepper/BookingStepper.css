@@ -1,0 +1,193 @@
+/* ==========================================
+   BOOKING STEPPER DESIGN SYSTEM STYLES
+   ========================================== */
+
+.booking-stepper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  height: 32px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.booking-stepper-item {
+  position: relative;
+  /* Step width is calculated based on 4-step container division (max steps = 4, overlap = 21px => +63px / 4) */
+  width: calc((100% + 63px) / 4);
+  flex: 0 0 calc((100% + 63px) / 4);
+  max-width: 170px;
+  min-width: 0;
+  height: 32px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Chevron interlocking negative margin (exact 0px gap overlay) */
+.booking-stepper-item:not(:first-child) {
+  margin-left: -21px;
+}
+
+/* Layering order for overlapping chevrons */
+.booking-stepper-item:nth-child(1) { z-index: 10; }
+.booking-stepper-item:nth-child(2) { z-index: 9; }
+.booking-stepper-item:nth-child(3) { z-index: 8; }
+.booking-stepper-item:nth-child(4) { z-index: 7; }
+.booking-stepper-item:nth-child(5) { z-index: 6; }
+
+/* SVG Chevron Vector Background */
+.booking-step-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.booking-step-fill {
+  stroke: none;
+}
+
+.booking-step-stroke {
+  fill: none;
+  stroke-width: 1px;
+}
+
+/* Step Content Container */
+.booking-step-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Exclude chevron arrow tail (21px) from centering calculation */
+.booking-stepper-item--first .booking-step-content {
+  padding-left: 0;
+  padding-right: 21px;
+}
+
+.booking-stepper-item--middle .booking-step-content,
+.booking-stepper-item--last .booking-step-content {
+  padding-left: 21px;
+  padding-right: 21px;
+}
+
+/* Icon Styles */
+.booking-step-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Label Styles */
+.booking-step-label {
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: 14px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================
+   STATE MODIFIERS
+   ========================================== */
+
+/* Completed State */
+.booking-stepper-item--completed .booking-step-fill {
+  fill: var(--color-white);
+}
+.booking-stepper-item--completed .booking-step-stroke {
+  stroke: var(--color-blue-05);
+}
+.booking-stepper-item--completed .booking-step-label {
+  font-weight: 800;
+  color: var(--color-blue-09);
+}
+.booking-stepper-item--completed .booking-step-icon--check {
+  color: var(--color-blue-09);
+}
+
+/* Pending State */
+.booking-stepper-item--pending .booking-step-fill {
+  fill: var(--color-white);
+}
+.booking-stepper-item--pending .booking-step-stroke {
+  stroke: var(--color-grey-05);
+}
+.booking-stepper-item--pending .booking-step-label {
+  font-weight: 700;
+  color: var(--color-grey-06);
+}
+
+/* Canceled State */
+.booking-stepper-item--canceled .booking-step-fill {
+  fill: var(--color-white);
+}
+.booking-stepper-item--canceled .booking-step-stroke {
+  stroke: var(--color-red-04);
+}
+.booking-stepper-item--canceled .booking-step-label {
+  font-weight: 800;
+  color: var(--color-red-04);
+}
+.booking-stepper-item--canceled .booking-step-icon--cancel {
+  color: var(--color-red-04);
+}
+/* ==========================================
+   RESPONSIVE – ≤480px (mobile)
+   ========================================== */
+@media (max-width: 480px) {
+  .booking-stepper {
+    height: 26px;
+  }
+
+  .booking-stepper-item {
+    height: 26px;
+    max-width: 120px;
+  }
+
+  .booking-step-label {
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .booking-step-icon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .booking-step-content {
+    gap: 4px;
+  }
+
+  .booking-stepper-item--first .booking-step-content {
+    padding-right: 16px;
+  }
+
+  .booking-stepper-item--middle .booking-step-content,
+  .booking-stepper-item--last .booking-step-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

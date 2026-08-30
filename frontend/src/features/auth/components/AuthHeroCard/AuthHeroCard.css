@@ -1,0 +1,60 @@
+.auth-hero-card {
+  position: relative;
+  border-radius: var(--radius-3xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 54px 40px;
+  box-sizing: border-box;
+  background-image: var(--hero-bg-img);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: var(--shadow-md);
+  opacity: 1;
+}
+
+.auth-hero-headline {
+  font-family: 'Nunito', var(--heading);
+  font-weight: 800;
+  font-size: 64px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: var(--color-blue-09);
+  max-width: 440px;
+  z-index: 2;
+  margin: 0;
+}
+
+@media (max-width: 1440px), (max-height: 900px) {
+  .auth-hero-card {
+    padding: 40px 36px;
+  }
+
+  .auth-hero-headline {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 1366px), (max-height: 768px) {
+  .auth-hero-card {
+    padding: 30px 28px;
+  }
+
+  .auth-hero-headline {
+    font-size: 42px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .auth-hero-headline {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 960px) {
+  .auth-hero-card {
+    display: none;
+  }
+}

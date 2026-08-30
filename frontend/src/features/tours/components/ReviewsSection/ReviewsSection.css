@@ -1,0 +1,53 @@
+.reviews-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.reviews-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.reviews-section__status {
+  font-family: var(--sans);
+  color: var(--color-grey-07);
+}
+
+.reviews-section__status--error {
+  color: var(--color-error);
+}
+
+.reviews-section__empty {
+  text-align: center;
+  color: var(--color-grey-07);
+}
+
+.reviews-section__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-lg);
+  min-height: 220px;
+}
+
+@media (max-width: 1200px) {
+  .reviews-section__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .reviews-section__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.reviews-section__pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--spacing-sm);
+}

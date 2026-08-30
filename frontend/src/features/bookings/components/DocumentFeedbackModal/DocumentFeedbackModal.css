@@ -1,0 +1,45 @@
+.doc-feedback-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+}
+
+.doc-feedback-modal-heading {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.doc-feedback-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.doc-feedback-textarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-blue-04);
+  border-radius: var(--radius-md);
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  resize: vertical;
+  min-height: 120px;
+  box-sizing: border-box;
+}
+
+.doc-feedback-textarea:focus {
+  outline: none;
+  border-color: var(--color-blue-09);
+  box-shadow: 0 0 0 2px var(--color-blue-02);
+}
+
+.doc-feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}

@@ -1,0 +1,237 @@
+.tours-filter-panel {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.filter-panel-top {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  align-items: center;
+}
+
+.filter-panel-title {
+  font-family: 'Nunito', var(--heading);
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: 0;
+  color: var(--color-blue-09);
+  margin: 0;
+  text-align: center;
+}
+
+.filter-reset-btn {
+  position: absolute;
+  right: 0;
+  font-family: 'Nunito', var(--sans);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-blue-05);
+  text-decoration: underline;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+/* Input group container: 24px horizontal, 16px vertical padding, 16px gap between inputs */
+.filter-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--spacing-md);
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-sizing: border-box;
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: visible;
+  /* Crucial for child absolute popover to be visible! */
+}
+
+.filter-bar-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Use Figma widths as growth ratios so controls expand on large screens */
+.filter-item-dest {
+  flex: 312 1 0;
+  min-width: 180px;
+  position: relative;
+}
+
+.filter-item-date {
+  flex: 256 1 0;
+  min-width: 180px;
+  position: relative;
+  cursor: pointer;
+}
+
+.date-chevron-icon {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.filter-item-guests {
+  flex: 208 1 0;
+  min-width: 150px;
+  position: relative;
+  cursor: pointer;
+}
+
+.filter-item-meal {
+  flex: 200 1 0;
+  min-width: 150px;
+  position: relative;
+  cursor: pointer;
+}
+
+.filter-item-type {
+  flex: 179 1 0;
+  min-width: 140px;
+  position: relative;
+  cursor: pointer;
+}
+
+.filter-item-dest.is-active input,
+.filter-item-date.is-active input,
+.filter-item-guests.is-active input,
+.filter-item-meal.is-active input,
+.filter-item-type.is-active input {
+  border-color: var(--color-blue-05);
+  box-shadow: 0 0 0 2px rgba(2, 126, 172, 0.2);
+}
+
+.filter-bar-item .form-group,
+.filter-bar-item .select-group {
+  margin-bottom: 0;
+}
+
+/* Input Specs: height: 56px, min-height: 56px, border-radius: 8px, border: 1px solid Grey 05, padding: 16px 12px */
+.filter-bar-item input,
+.filter-bar-item select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 56px;
+  min-height: 56px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-grey-05);
+  background-color: var(--color-white);
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-blue-09);
+  cursor: pointer;
+}
+
+/* Search Button Specs: width: 77, height: 56, border-radius: 8px, padding: 8px 16px, color: Blue 05 */
+.filter-submit-item {
+  flex: 0 0 77px;
+  width: 77px;
+  min-width: 77px;
+}
+
+.filter-submit-item .filter-search-button {
+  width: 77px;
+  min-width: 77px;
+  height: 56px;
+  min-height: 56px;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-blue-05);
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0;
+  text-align: center;
+  color: var(--color-white);
+  box-sizing: border-box;
+}
+
+.filter-submit-item .filter-search-button:hover:not(:disabled) {
+  background-color: var(--color-blue-06);
+}
+
+@media (max-width: 1200px) {
+  .filter-bar {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+  }
+
+  .filter-item-dest,
+  .filter-item-date,
+  .filter-item-guests,
+  .filter-item-meal,
+  .filter-item-type {
+    flex: 1 1 calc(50% - 12px);
+    min-width: 220px;
+  }
+
+  .filter-submit-item {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .filter-submit-item .filter-search-button {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-panel-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .filter-reset-btn {
+    position: relative;
+    right: auto;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .filter-panel-top {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    padding: var(--spacing-md);
+    gap: 12px;
+    border-radius: var(--radius-lg);
+  }
+
+  .filter-item-dest,
+  .filter-item-date,
+  .filter-item-guests,
+  .filter-item-meal,
+  .filter-item-type,
+  .filter-submit-item {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .filter-submit-item .filter-search-button {
+    width: 100%;
+    min-width: 100%;
+    height: 52px;
+    font-weight: 700;
+    font-size: 15px;
+    margin-top: 4px;
+  }
+}

@@ -1,0 +1,421 @@
+/* ============================================================
+   UploadDocumentsModal – Figma-exact layout & typography
+   ============================================================ */
+
+/* Override ModalShell max-width and height for the wide two-panel layout */
+.upload-documents-modal-shell {
+  max-width: 880px !important;
+  height: 516px;
+}
+
+.upload-documents-modal-shell .modal-shell-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Body wraps panels + footer */
+.upload-documents-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── TWO-PANEL WRAPPER ──────────────────────────────────── */
+.upload-documents-panels {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+  /* 24px gap between title and this container is handled by
+     ModalShell .modal-shell-header margin-bottom: 24px        */
+}
+
+/* ─── LEFT PANEL – Field tabs ────────────────────────────── */
+.upload-documents-left-panel {
+  /* padding: 24px inside the left container as specified */
+  padding: 0 24px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex-shrink: 0;
+  width: 280px;
+  overflow-y: auto;
+}
+
+/* Each field tab is a full-width button */
+.upload-documents-field-tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0 0 10px 0;
+  margin-bottom: 16px;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+}
+
+.upload-documents-field-tab:last-child {
+  margin-bottom: 0;
+}
+
+.upload-documents-field-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background-color: var(--color-blue-05);
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Active tab: Blue/Blue 09 text + 5px Blue/Blue 05 bar */
+.upload-documents-field-tab--active .upload-documents-field-tab-label {
+  color: var(--color-blue-09);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0;
+}
+
+.upload-documents-field-tab--active::after {
+  opacity: 1;
+}
+
+/* Inactive tab: Grey/Grey 07 text */
+.upload-documents-field-tab-label {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: var(--color-grey-07);
+}
+
+/* circle-check icon – right-aligned inside the tab */
+.upload-documents-field-check {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* ─── VERTICAL DIVIDER ───────────────────────────────────── */
+.upload-documents-divider {
+  width: 1px;
+  background-color: var(--color-grey-05);
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+/* ─── RIGHT PANEL – Dropzone + file list ────────────────── */
+.upload-documents-right-panel {
+  /* 24px between the divider and this panel */
+  padding: 0 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* "Add attachments" label */
+.upload-documents-add-label {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: var(--color-blue-09);
+  margin: 0 0 8px 0; /* 8px between label and dropzone */
+  flex-shrink: 0;
+}
+
+/* Hidden real file input */
+.upload-documents-file-input {
+  display: none;
+}
+
+/* Drop zone */
+.upload-documents-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--color-grey-05);
+  border-radius: var(--radius-md);
+  padding: 24px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.upload-documents-dropzone:hover,
+.upload-documents-dropzone:focus-visible {
+  background-color: var(--color-blue-02);
+  border-color: var(--color-blue-05);
+}
+
+.upload-documents-dropzone--drag-over {
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-blue-05);
+}
+
+.upload-documents-dropzone-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.upload-documents-dropzone-text {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: var(--color-blue-09);
+  text-align: center;
+}
+
+/* ─── FILE LIST ──────────────────────────────────────────── */
+/* 32px between upload document modal header area and file list  */
+.upload-documents-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;      /* 12px between each file item */
+  margin-top: 32px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Single file item row */
+.upload-documents-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.upload-documents-file-item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;       /* 8px between document icon and text */
+  min-width: 0;
+}
+
+.upload-documents-file-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--color-blue-09);
+}
+
+.upload-documents-file-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Filename: Nunito Regular 14px Blue/Blue 09 */
+.upload-documents-file-name {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0;
+  color: var(--color-blue-09);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* File size: Nunito Regular 12px Grey/Grey 07 */
+.upload-documents-file-size {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0;
+  color: var(--color-grey-07);
+}
+
+/* Trash button – right-aligned, 13px away from name col (from spec) */
+.upload-documents-file-trash {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.upload-documents-file-trash:hover {
+  opacity: 1;
+}
+
+.upload-documents-file-trash img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* ─── FOOTER ACTIONS ─────────────────────────────────────── */
+.upload-documents-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;       /* 8px between Cancel and Save buttons */
+  margin-top: 32px;
+  flex-shrink: 0;
+}
+
+/* ─── 5MB ERROR SHELL ────────────────────────────────────── */
+.upload-documents-size-error-shell {
+  max-width: 400px !important;
+}
+
+.upload-documents-size-error-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.upload-documents-size-error-text {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.upload-documents-size-error-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Names of the files that were rejected, listed under the rule text */
+.upload-documents-error-file-names {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  padding-left: 20px;
+  word-break: break-all;
+}
+
+.upload-documents-error-file-names:empty {
+  display: none;
+}
+
+/* ─── FETCH ERROR BANNER ─────────────────────────────────── */
+.upload-documents-fetch-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--color-error);
+  border-radius: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+/* ─── RESPONSIVE – small screens (≤640px) ───────────────── */
+/*
+  Sol panel (sekmeler) YUKARI alınır ve sabit kalır.
+  Sağ panel (dropzone + belgeler) alta gelir ve scroll yapabilir.
+  Dikey bölücü yatay çizgiye dönüşür.
+*/
+@media (max-width: 640px) {
+  /* Modal height auto; mobilede 516px'e kilitleme */
+  .upload-documents-modal-shell {
+    height: auto !important;
+    max-height: 90dvh;
+  }
+
+  /* Body artık scroll taşıyıcı */
+  .upload-documents-body {
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  /* İki panel dikey sıraya geçer */
+  .upload-documents-panels {
+    flex-direction: column;
+    flex: none;
+    min-height: 0;
+  }
+
+  /* Sol panel: sabit, tam genişlik, yatay scroll (çok sekme varsa) */
+  .upload-documents-left-panel {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0 16px;
+    padding: 0 0 16px 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    flex-shrink: 0;
+  }
+
+  /* Sekmeler mobilde yatay sırada */
+  .upload-documents-field-tab {
+    width: auto;
+    flex-shrink: 0;
+    padding: 0 0 10px 0;
+    margin-bottom: 0;
+  }
+
+  /* Dikey bölücü → yatay çizgi */
+  .upload-documents-divider {
+    width: 100%;
+    height: 1px;
+    align-self: auto;
+    margin: 0;
+  }
+
+  /* Sağ panel: tam genişlik, scroll serbest */
+  .upload-documents-right-panel {
+    padding: 16px 0 0 0;
+    overflow-y: visible;
+    flex: none;
+  }
+
+  /* Dosya listesi: scroll sadece buraya */
+  .upload-documents-file-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  /* Butonlar */
+  .upload-documents-actions {
+    margin-top: 24px;
+  }
+}

@@ -1,0 +1,260 @@
+.app-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 12px 40px;
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-blue-02);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  transition: padding 0.2s ease;
+}
+
+.header-logo-section {
+  display: flex;
+  align-items: center;
+  justify-self: start;
+  min-width: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  min-width: 0;
+}
+
+.nav-items-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: 'Nunito', var(--heading), sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--color-blue-09);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  white-space: nowrap;
+  transition: color 0.2s ease, font-size 0.2s ease;
+  user-select: none;
+}
+
+.nav-link:hover {
+  color: var(--color-blue-05);
+}
+
+.nav-link.active {
+  color: var(--color-blue-09);
+  font-weight: 500;
+}
+
+.active-bar {
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-blue-05);
+  border-radius: 6px;
+  position: absolute;
+  bottom: -12px;
+}
+
+.header-user-section {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  min-width: 0;
+}
+
+.user-profile-trigger {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  transition: background-color 0.2s ease;
+}
+
+.user-profile-trigger:hover {
+  background-color: var(--color-blue-02);
+}
+
+.user-avatar-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.travel-agent-header-label {
+  margin-left: 8px;
+  color: var(--color-blue-09);
+  font-family: 'Nunito', var(--heading), sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.header-sign-in-btn {
+  width: 117px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid var(--color-blue-05);
+  background-color: transparent;
+  color: var(--color-blue-05);
+  font-family: 'Nunito', var(--heading), sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: center;
+  vertical-align: middle;
+  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  user-select: none;
+}
+
+.header-sign-in-btn:hover {
+  background-color: var(--color-blue-03);
+}
+
+.header-sign-in-btn:active {
+  background-color: var(--color-blue-02);
+}
+
+/* ==========================================
+   RESPONSIVE BREAKPOINTS (No Overlap Guarantee)
+   ========================================== */
+
+/* Laptop (<= 1024px) */
+@media (max-width: 1024px) {
+  .app-header {
+    padding: 12px 24px;
+  }
+
+  .nav-items-container {
+    gap: var(--spacing-lg);
+  }
+
+  .nav-link {
+    font-size: 18px;
+    line-height: 26px;
+  }
+}
+
+/* Tablet & Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .app-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+  }
+
+  .header-logo-section {
+    justify-self: start;
+  }
+
+  .app-header .logo-md {
+    font-size: 15px;
+    gap: 6px;
+  }
+
+  .app-header .logo-md .logo-icon {
+    width: 20px;
+    height: 28px;
+  }
+
+  .header-nav {
+    justify-self: center;
+  }
+
+  .nav-items-container {
+    gap: 12px;
+  }
+
+  .nav-link {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .active-bar {
+    height: 3px;
+    bottom: -6px;
+  }
+
+  .travel-agent-header-label {
+    font-size: 16px;
+    line-height: 22px;
+    margin-left: 6px;
+  }
+
+  .header-sign-in-btn {
+    width: auto;
+    min-width: 80px;
+    height: 32px;
+    padding: 4px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Small Mobile (<= 480px) */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .app-header .logo-md {
+    font-size: 14px;
+  }
+
+  .app-header .logo-md .logo-icon {
+    width: 16px;
+    height: 22px;
+  }
+
+  .nav-items-container {
+    gap: 8px;
+  }
+
+  .nav-link {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .active-bar {
+    height: 2px;
+    bottom: -4px;
+  }
+
+  .header-sign-in-btn {
+    min-width: 72px;
+    height: 28px;
+    padding: 2px 8px;
+    font-size: 12px;
+  }
+}

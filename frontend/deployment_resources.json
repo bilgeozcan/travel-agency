@@ -1,0 +1,44 @@
+{
+  "team3-frontend-bucket": {
+    "resource_type": "s3_bucket",
+    "acl": "public-read",
+    "cors": [],
+    "policy": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "IPAllow",
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": "s3:GetObject",
+          "Resource": [
+            "arn:aws:s3:::team3-frontend-bucket",
+            "arn:aws:s3:::team3-frontend-bucket/*"
+          ],
+          "Condition": {
+            "IpAddress": {
+              "aws:SourceIp": [
+                "195.56.119.209/32",
+                "195.56.119.0/24",
+                "85.223.209.18/32",
+                "85.223.209.0/24",
+                "204.153.55.4/32",
+                "204.153.55.0/24"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "public_access_block": {
+      "block_public_acls": false,
+      "ignore_public_acls": true,
+      "block_public_policy": false,
+      "restrict_public_buckets": true
+    },
+    "website_hosting": {
+      "index_document": "index.html",
+      "error_document": "error.html"
+    }
+  }
+}

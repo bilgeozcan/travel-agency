@@ -1,0 +1,98 @@
+{
+  "version": "1.0",
+  "name": "api_handler",
+  "func_name": "handler.lambda_handler",
+  "resource_type": "lambda",
+  "iam_role_name": "api_handler-role",
+  "runtime": "python3.10",
+  "memory": 128,
+  "timeout": 100,
+  "lambda_path": "lambdas/api_handler",
+  "dependencies": [
+    {
+      "resource_name": "${booking_userpool}",
+      "resource_type": "cognito_idp"
+    },
+    {
+      "resource_name": "${tour_catalog_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${travel_agents_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${bookings_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${tour_reviews_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${bookings_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${feedbacks_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${booking_documents_bucket}",
+      "resource_type": "s3_bucket"
+    },
+    {
+      "resource_name": "${report_cache_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${reports_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${reports_bucket}",
+      "resource_type": "s3_bucket"
+    },
+    {
+      "resource_name": "${reports_queue}",
+      "resource_type": "sqs_queue"
+    },
+    {
+      "resource_name": "report_generation_layer",
+      "resource_type": "lambda_layer"
+    }
+  ],
+  "layers": ["report_generation_layer"],
+  "event_sources": [],
+  "env_variables": {
+    "travel_agents_table": "${travel_agents_table}",
+    "tour_table_name": "${tour_catalog_table}",
+    "bookings_table": "${bookings_table}",
+    "reviews_table_name": "${tour_reviews_table}",
+    "feedbacks_table": "${feedbacks_table}",
+    "documents_bucket": "${booking_documents_bucket}",
+    "bookings_table_name": "${bookings_table}",
+    "cup_id": {
+      "resource_name": "${booking_userpool}",
+      "resource_type": "cognito_idp",
+      "parameter": "id"
+    },
+    "cup_client_id": {
+      "resource_name": "${booking_userpool}",
+      "resource_type": "cognito_idp",
+      "parameter": "client_id"
+    },
+    "region": "${region}",
+    "BOOKING_TOKEN_SECRET": "${booking_token_secret}",
+    "reports_table": "${reports_table}",
+    "report_cache_table": "${report_cache_table}",
+    "reports_bucket": "${reports_bucket}",
+    "reports_queue_url": "https://sqs.${region}.amazonaws.com/${account_id}/${reports_queue}"
+  },
+  "publish_version": true,
+  "alias": "${lambdas_alias_name}",
+  "url_config": {},
+  "ephemeral_storage": 512,
+  "logs_expiration": "${logs_expiration}",
+  "tags": {}
+}

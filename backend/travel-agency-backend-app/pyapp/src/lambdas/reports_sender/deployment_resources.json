@@ -1,0 +1,12 @@
+{
+  "reports-sender-role": {
+    "predefined_policies": [],
+    "principal_service": "lambda",
+    "custom_policies": [
+      "reports-sender-policy"
+    ],
+    "permissions_boundary": "arn:aws:iam::364410974634:policy/eo_role_boundary",
+    "resource_type": "iam_role",
+    "tags": {}
+  }
+}

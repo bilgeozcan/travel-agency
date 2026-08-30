@@ -1,0 +1,281 @@
+/* Calendar + Duration Popover Figma Specs */
+
+.calendar-duration-popover {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: var(--spacing-md);
+  gap: var(--spacing-md);
+  position: absolute;
+  width: 496px;
+  height: auto;
+  top: calc(100% + var(--spacing-sm));
+  left: 0;
+  background: var(--color-white);
+  border: 1px solid var(--color-grey-05);
+  box-shadow: var(--shadow-popover);
+  border-radius: var(--radius-sm);
+  z-index: var(--z-popover);
+}
+
+/* Calendar-only modifier (used in Reports period picker) */
+.calendar-duration-popover.calendar-duration-popover--calendar-only {
+  width: auto;
+  max-width: 308px;
+}
+
+.calendar-duration-popover.calendar-duration-popover--calendar-only .calendar-popover-col {
+  width: 100%;
+  border-right: none;
+  padding: 0;
+}
+
+/* Left Calendar Column */
+.calendar-popover-col {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 var(--spacing-lg) 0 0;
+  gap: var(--spacing-md);
+  width: 296px;
+  height: auto;
+  border-right: 1px solid var(--color-grey-05);
+  flex: none;
+}
+
+.calendar-popover-heading {
+  width: 100%;
+  height: 32px;
+  font-family: 'Nunito', var(--sans);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 32px;
+  color: var(--color-blue-09);
+  margin: 0;
+}
+
+.calendar-month-nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px;
+  width: 272px;
+  height: 24px;
+}
+
+.month-nav-title {
+  font-family: 'Nunito', var(--sans);
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-blue-09);
+}
+
+.month-nav-btn {
+  background: none;
+  border: none;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chevron-nav-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.chevron-nav-icon.rotate-left {
+  transform: rotate(90deg);
+}
+
+.chevron-nav-icon.rotate-right {
+  transform: rotate(-90deg);
+}
+
+/* Calendar Days Grid */
+.calendar-days-grid {
+  display: flex;
+  flex-direction: column;
+  width: 272px;
+  gap: 4px;
+}
+
+.calendar-weekdays-header {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 0 2px;
+  width: 272px;
+  height: 34px;
+  border-bottom: 1px solid var(--color-grey-05);
+  gap: var(--spacing-sm);
+}
+
+.calendar-days-body {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) 0;
+  width: 272px;
+  padding-top: 4px;
+}
+
+/* Day Element Specs: width: 32, height: 32, padding: 8px 4px, border-radius: 100px */
+.day-element {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 38.8px;
+  /* 272px / 7 columns = 38.8px width per day cell */
+  height: 32px;
+  padding: 8px 4px;
+  font-family: 'Nunito', var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-blue-09);
+  user-select: none;
+  border: 0;
+  background: transparent;
+}
+
+.weekday-header-cell {
+  width: 38.8px;
+  font-weight: 400;
+  color: var(--color-blue-09);
+}
+
+.date-cell {
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.date-cell:hover:not(.muted) {
+  background-color: var(--color-blue-02);
+  border-radius: 100px;
+  color: var(--color-blue-09) !important;
+}
+
+.date-cell.is-today:not(.muted):not(.selected-start):not(.selected-end):not(.in-range) {
+  border: 1.5px solid var(--color-blue-05);
+  font-weight: 800;
+  color: var(--color-blue-05);
+  border-radius: 100px;
+}
+
+/* Range Selection Styling: Start date & End date fill: Blue/Blue 05 (#027EAC), In Between: Blue/Blue 02 (#EDF4FA) */
+.date-cell.selected-single {
+  background-color: var(--color-blue-05);
+  color: var(--color-white);
+  font-weight: 700;
+  border-radius: 100px;
+}
+
+.date-cell.selected-start {
+  background-color: var(--color-blue-05);
+  color: var(--color-white);
+  font-weight: 700;
+  border-radius: 100px !important;
+}
+
+.date-cell.selected-end {
+  background-color: var(--color-blue-05);
+  color: var(--color-white);
+  font-weight: 700;
+  border-radius: 100px !important;
+}
+
+.date-cell.in-range {
+  background-color: var(--color-blue-02);
+  /* Blue/Blue 02 */
+  color: var(--color-blue-09);
+  font-weight: 600;
+  border-radius: 0px;
+}
+
+.date-cell.muted {
+  color: var(--color-grey-06);
+  cursor: default;
+}
+
+.date-cell:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 100px;
+}
+
+/* Right Duration Column */
+.duration-popover-col {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: var(--spacing-md);
+  width: 152px;
+  height: auto;
+  flex: none;
+}
+
+.duration-checkboxes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 152px;
+}
+
+.duration-checkbox-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-sm);
+  width: 152px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.duration-native-checkbox {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.duration-custom-checkbox {
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  background: var(--color-white);
+  border: 1px solid var(--color-blue-05);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-blue-05);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.duration-custom-checkbox.checked {
+  background-color: var(--color-blue-05);
+  color: var(--color-white);
+}
+
+.duration-label-text {
+  font-family: 'Nunito', var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-blue-09);
+}

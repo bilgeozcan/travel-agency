@@ -1,0 +1,8 @@
+{
+  "name": "report_generation_layer",
+  "version": "1.0",
+  "resource_type": "lambda_layer",
+  "deployment_package": "report_generation_layer-1.0.zip",
+  "runtimes": ["python3.10"],
+  "platforms": ["manylinux2014_x86_64"]
+}

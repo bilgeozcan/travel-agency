@@ -1,0 +1,47 @@
+{
+  "verified_at_utc": "2026-07-28T12:34:08.539547+00:00",
+  "region": "eu-west-3",
+  "bundle": "travel-agency-backend-app_260728.153259",
+  "deployment_status": "succeeded",
+  "deployed_personal_resources": [
+    "team3-booking-userpool-enes",
+    "tm3-tour-catalog-enes",
+    "tm3-TravelAgents-enes"
+  ],
+  "cognito_groups": [
+    "ADMIN",
+    "CUSTOMER",
+    "TRAVEL_AGENT"
+  ],
+  "user_pool": "team3-booking-userpool-enes",
+  "travel_agents_table": "tm3-TravelAgents-enes",
+  "tour_catalog_table": "tm3-tour-catalog-enes",
+  "shared_lambda_modified": false,
+  "shared_api_gateway_modified": false,
+  "results": [
+    {
+      "email": "enes.us3.ta.20260728123403@example.com",
+      "travel_agents_table_entry": true,
+      "status_code": 201,
+      "response_body": {
+        "message": "Account created successfully"
+      },
+      "expected_group": "TRAVEL_AGENT",
+      "actual_groups": [
+        "TRAVEL_AGENT"
+      ]
+    },
+    {
+      "email": "enes.us3.customer.20260728123403@example.com",
+      "travel_agents_table_entry": false,
+      "status_code": 201,
+      "response_body": {
+        "message": "Account created successfully"
+      },
+      "expected_group": "CUSTOMER",
+      "actual_groups": [
+        "CUSTOMER"
+      ]
+    }
+  ]
+}

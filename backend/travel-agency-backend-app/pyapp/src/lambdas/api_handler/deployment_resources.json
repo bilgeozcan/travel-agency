@@ -1,0 +1,12 @@
+{
+  "api_handler-role": {
+    "predefined_policies": [],
+    "principal_service": "lambda",
+    "custom_policies": [
+      "lambda-basic-execution"
+    ],
+    "permissions_boundary": "arn:aws:iam::364410974634:policy/eo_role_boundary",
+    "resource_type": "iam_role",
+    "tags": {}
+  }
+}

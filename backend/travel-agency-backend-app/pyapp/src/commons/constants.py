@@ -1,0 +1,4 @@
+class Role:
+    CUSTOMER = 'CUSTOMER'
+    TRAVEL_AGENT = 'TRAVEL_AGENT'
+    ADMIN = 'ADMIN'

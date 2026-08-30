@@ -1,0 +1,114 @@
+.pending-edits-modal-shell {
+  max-width: 560px;
+  width: 100%;
+  padding: 24px;
+  border-radius: var(--radius-xl, 16px);
+  background-color: var(--color-white, #ffffff);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  font-family: 'Nunito', sans-serif;
+}
+
+/* Distance between Title and Big Description: 32px */
+.pending-edits-modal-shell .modal-shell-header {
+  margin-bottom: 32px;
+}
+
+/* Title Specs: Nunito Bold 24px / line-height 40px / #0B3857 */
+.pending-edits-modal-shell .modal-shell-title {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 40px;
+  letter-spacing: 0px;
+  color: var(--color-blue-09, #0b3857);
+}
+
+.confirm-changes-modal-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  color: var(--color-text-primary, #0b3857);
+  font-family: 'Nunito', sans-serif;
+  text-align: left;
+}
+
+/* Intro / Big Description: Nunito Regular 14px / line-height 24px */
+.confirm-changes-intro {
+  margin: 0 0 20px 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: var(--color-grey-08, #36444f);
+}
+
+/* ExtraBold 800 Spans & Strongs: Nunito ExtraBold 14px / line-height 24px / #0B3857 */
+.confirm-changes-modal-body strong,
+.confirm-changes-modal-body b,
+.confirm-changes-modal-body .bold-text {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: var(--color-blue-09, #0b3857);
+}
+
+.confirm-changes-section {
+  margin-bottom: 12px;
+}
+
+.confirm-changes-section-heading {
+  margin: 0 0 8px 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: var(--color-blue-09, #0b3857);
+}
+
+.confirm-changes-list {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.confirm-changes-item {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: var(--color-grey-08, #36444f);
+  margin-bottom: 6px;
+}
+
+/* Notes section starting with "All other details...": 12px above, 32px below to buttons */
+.confirm-changes-notes {
+  margin: 12px 0 32px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.confirm-changes-notes p {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0%;
+  color: var(--color-grey-07, #677883);
+}
+
+/* Action Buttons: Right-aligned flex container matching app modal patterns */
+.confirm-changes-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+}

@@ -1,0 +1,25 @@
+.booking-document-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-blue-05, #027eac);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  text-decoration: underline;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.booking-document-link:hover {
+  color: var(--color-blue-09, #0b3857);
+}
+
+.booking-documents-empty {
+  font-size: 14px;
+  color: var(--color-navy-04, #a3aed0);
+  font-style: italic;
+}

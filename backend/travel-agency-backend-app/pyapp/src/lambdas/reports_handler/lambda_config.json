@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "name": "reports_handler",
+  "func_name": "handler.lambda_handler",
+  "resource_type": "lambda",
+  "iam_role_name": "reports-handler-role",
+  "runtime": "python3.10",
+  "memory": 128,
+  "timeout": 60,
+  "lambda_path": "lambdas/reports_handler",
+  "dependencies": [
+    {
+      "resource_name": "${reports_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${reports_queue}",
+      "resource_type": "sqs_queue"
+    }
+  ],
+  "event_sources": [
+    {
+      "resource_type": "sqs_trigger",
+      "target_queue": "${reports_queue}",
+      "batch_size": 10,
+      "function_response_types": ["ReportBatchItemFailures"]
+    }
+  ],
+  "env_variables": {
+    "reports_table": "${reports_table}",
+    "region": "${region}"
+  },
+  "publish_version": true,
+  "alias": "${lambdas_alias_name}",
+  "ephemeral_storage": 512,
+  "logs_expiration": "${logs_expiration}",
+  "tags": {}
+}

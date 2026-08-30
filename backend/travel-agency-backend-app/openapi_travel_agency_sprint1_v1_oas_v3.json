@@ -1,0 +1,4185 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "OpenAPI Travel Agency (Sprint 1)",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080/api/v1",
+            "description": "local development"
+        },
+        {
+            "url": "{protocol}://{host}:{port}/{basePath}",
+            "description": "custom server",
+            "variables": {
+                "protocol": {
+                    "enum": [
+                        "http",
+                        "https"
+                    ],
+                    "default": "https",
+                    "description": "The protocol to use"
+                },
+                "host": {
+                    "default": "api.example.com",
+                    "description": "The host name or IP address"
+                },
+                "port": {
+                    "enum": [
+                        "80",
+                        "443",
+                        "8080",
+                        "8443"
+                    ],
+                    "default": "443",
+                    "description": "The port number"
+                },
+                "basePath": {
+                    "default": "api/v1",
+                    "description": "Api version"
+                }
+            }
+        }
+    ],
+    "tags": [
+        {
+            "description": "Endpoints related to user authentication and authorization.",
+            "name": "Auth"
+        },
+        {
+            "description": "Endpoints related to authenticated user profiles.",
+            "name": "Profile"
+        },
+        {
+            "description": "Endpoints related to tours.",
+            "name": "Tours"
+        },
+        {
+            "description": "Endpoints related to tour bookings.",
+            "name": "Bookings"
+        },
+        {
+            "description": "Endpoints related to tour feedback and reviews.",
+            "name": "Feedback"
+        }
+    ],
+    "paths": {
+        "/auth/sign-up": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Sign up a new user (User Story 1, User Story 3)",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignUpRequestDTO"
+                            },
+                            "example": {
+                                "firstName": "Jhonson",
+                                "lastName": "Doe",
+                                "email": "jhonson_dou@nomail.com",
+                                "password": "password123"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User profile has been successfully created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SignUpResponseDTO"
+                                },
+                                "example": {
+                                    "message": "Account created successfully"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - Email already exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SignUpResponseDTO"
+                                },
+                                "example": {
+                                    "message": "Email already exists"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SignUpResponseDTO"
+                                },
+                                "example": {
+                                    "message": "Invalid input provided"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "security": [],
+                "operationId": "refreshSession",
+                "summary": "Refresh the authenticated session",
+                "description": "Uses the secure HttpOnly refresh-token cookie to obtain a new Cognito access token. The refresh token is never returned in the response body.",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Session refreshed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accessToken": {
+                                            "type": "string",
+                                            "description": "New Cognito access token used for protected APIs"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "deprecated": true,
+                                            "description": "Backward-compatible alias of accessToken"
+                                        },
+                                        "expiresIn": {
+                                            "type": "integer",
+                                            "description": "Access-token lifetime in seconds"
+                                        },
+                                        "tokenType": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "required": [
+                                        "accessToken",
+                                        "expiresIn",
+                                        "tokenType"
+                                    ]
+                                },
+                                "example": {
+                                    "accessToken": "eyJraWQiOiJhY2Nlc3Mta2V5IiwidHlwIjoiSldUIn0.refreshed-access-token.signature",
+                                    "token": "eyJraWQiOiJhY2Nlc3Mta2V5IiwidHlwIjoiSldUIn0.refreshed-access-token.signature",
+                                    "expiresIn": 3600,
+                                    "tokenType": "Bearer"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Refresh session is missing, invalid or expired",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "INVALID_REFRESH_TOKEN",
+                                    "message": "Refresh session is invalid or expired"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many refresh attempts"
+                    },
+                    "503": {
+                        "description": "Authentication service unavailable"
+                    }
+                }
+            }
+        },
+        "/auth/sign-in": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Sign in a user (User Story 2, User Story 3)",
+                "description": "This endpoint allows users to sign in using their email and password. Upon successful authentication, a JWT (JSON Web Token) is returned to the user for session management.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignInRequestDTO"
+                            },
+                            "example": {
+                                "email": "jhonson_doe@nomail.com",
+                                "password": "password123"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful sign-in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SignInResponseDTO"
+                                },
+                                "example": {
+                                    "accessToken": "eyJraWQiOiJhY2Nlc3Mta2V5IiwidHlwIjoiSldUIn0.access-token.signature",
+                                    "idToken": "eyJraWQiOiJpZC1rZXkiLCJ0eXAiOiJKV1QifQ.id-token.signature",
+                                    "token": "eyJraWQiOiJhY2Nlc3Mta2V5IiwidHlwIjoiSldUIn0.access-token.signature",
+                                    "expiresIn": 3600,
+                                    "tokenType": "Bearer",
+                                    "user": {
+                                        "id": "1234567890",
+                                        "email": "john.doe@example.com",
+                                        "firstName": "John",
+                                        "lastName": "Doe",
+                                        "role": "CUSTOMER"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Wrong password or email",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Wrong password or email"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "security": [],
+                "operationId": "forgotPassword",
+                "summary": "Request a password reset code",
+                "description": "Uses Amazon Cognito default email delivery. The response does not reveal whether the email exists.",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 254
+                                    }
+                                }
+                            },
+                            "example": {
+                                "email": "user@example.com"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Generic password reset acknowledgement",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "If an account exists for this email, a password reset code has been sent."
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-Password-Recovery-Session": {
+                                "description": "Signed recovery session token valid for 15 minutes",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or email format"
+                    },
+                    "429": {
+                        "description": "Cognito throttling or delivery limit"
+                    },
+                    "503": {
+                        "description": "Cognito is temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/auth/verify-code": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "security": [],
+                "operationId": "verifyPasswordRecoveryCode",
+                "summary": "Validate a password recovery verification request",
+                "description": "Validates the request, confirmation-code format, and signed 15-minute recovery session. Amazon Cognito authoritatively validates the confirmation code during the password reset step because ConfirmForgotPassword requires both the code and the new password.",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "confirmationCode",
+                                    "verificationSession"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 254
+                                    },
+                                    "confirmationCode": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 2048
+                                    },
+                                    "verificationSession": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                }
+                            },
+                            "example": {
+                                "email": "user@example.com",
+                                "confirmationCode": "123456",
+                                "verificationSession": "<token-from-forgot-password-response-header>"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verification request accepted inside the 15-minute recovery window",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Verification request accepted",
+                                    "verificationStatus": "PENDING_COGNITO_CONFIRMATION"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request, code format, recovery session, email mismatch, or expired recovery session"
+                    },
+                    "500": {
+                        "description": "Unexpected verification error"
+                    }
+                }
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "security": [],
+                "operationId": "resetPassword",
+                "summary": "Reset a forgotten password",
+                "description": "Validates the signed 15-minute password recovery session, enforces the application password policy, and calls Amazon Cognito ConfirmForgotPassword. Cognito performs the authoritative confirmation-code validation while changing the password.",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "confirmationCode",
+                                    "verificationSession",
+                                    "newPassword"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 254
+                                    },
+                                    "confirmationCode": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 2048
+                                    },
+                                    "verificationSession": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "newPassword": {
+                                        "type": "string",
+                                        "minLength": 8,
+                                        "maxLength": 64,
+                                        "description": "Must include uppercase, lowercase, number and special character"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "email": "user@example.com",
+                                "confirmationCode": "123456",
+                                "verificationSession": "<token-from-forgot-password-response-header>",
+                                "newPassword": "ValidPass123!"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Password reset successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or expired recovery session, invalid confirmation code, or password policy violation"
+                    },
+                    "429": {
+                        "description": "Cognito throttling"
+                    },
+                    "503": {
+                        "description": "Password recovery or Cognito service is temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/auth/confirm-forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "security": [],
+                "operationId": "confirmForgotPassword",
+                "summary": "Confirm a password reset",
+                "description": "Validates the registration password policy and confirms the new password through Amazon Cognito.",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "email",
+                                    "confirmationCode",
+                                    "newPassword"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 254
+                                    },
+                                    "confirmationCode": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 2048
+                                    },
+                                    "newPassword": {
+                                        "type": "string",
+                                        "minLength": 8,
+                                        "maxLength": 64
+                                    }
+                                }
+                            },
+                            "example": {
+                                "email": "user@example.com",
+                                "confirmationCode": "123456",
+                                "newPassword": "ValidPass123!"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Password reset successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid email, confirmation code, expired code or password"
+                    },
+                    "429": {
+                        "description": "Cognito throttling"
+                    },
+                    "503": {
+                        "description": "Cognito is temporarily unavailable"
+                    }
+                }
+            }
+        },
+        "/auth/sign-out": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "security": [],
+                "operationId": "signOut",
+                "summary": "Sign out and revoke the current session",
+                "description": "Revokes the Cognito refresh token supplied through the secure refresh-token cookie when present, and always expires the local cookie. The operation is idempotent when the cookie is missing or the remote session has already expired.",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Session successfully signed out",
+                        "headers": {
+                            "Set-Cookie": {
+                                "description": "Expired secure refresh-token cookie",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "description": "Credentialed CORS indicator for an approved request origin",
+                                "schema": {
+                                    "type": "string",
+                                    "example": "true"
+                                }
+                            },
+                            "Cache-Control": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "no-store"
+                                }
+                            },
+                            "Pragma": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "no-cache"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "message"
+                                    ],
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "message": "Signed out successfully"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Authentication service is temporarily unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "message"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "string",
+                                            "example": "AUTHENTICATION_SERVICE_UNAVAILABLE"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unexpected internal error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "code",
+                                        "message"
+                                    ],
+                                    "properties": {
+                                        "code": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/profile": {
+            "get": {
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "tags": [
+                    "Profile"
+                ],
+                "operationId": "getProfile",
+                "summary": "Get authenticated profile",
+                "responses": {
+                    "200": {
+                        "description": "Profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProfileResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated role cannot access a profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Cognito profile service is temporarily unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation or verification error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Throttled",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "aws.cognito.signin.user.admin"
+                        ]
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "operationId": "updateProfile",
+                "summary": "Update authenticated profile",
+                "description": "Updates mutable profile attributes for CUSTOMER and TRAVEL_AGENT accounts. The registered email address is immutable; when email is supplied it must match the authenticated account email.",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProfileRequestDTO"
+                            },
+                            "example": {
+                                "firstName": "Jane",
+                                "lastName": "Doe",
+                                "email": "jane@example.com"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProfileUpdateResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid profile input or attempted email change",
+                        "content": {
+                            "application/json": {
+                                "examples": {
+                                    "emailChangeNotAllowed": {
+                                        "value": {
+                                            "code": "EMAIL_CHANGE_NOT_ALLOWED",
+                                            "message": "Email address cannot be changed"
+                                        }
+                                    },
+                                    "validationError": {
+                                        "value": {
+                                            "code": "VALIDATION_ERROR",
+                                            "message": "Request validation failed"
+                                        }
+                                    }
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "The authenticated role cannot update this profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Cognito profile service is temporarily unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Throttled",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "aws.cognito.signin.user.admin"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/profile/change-password": {
+            "post": {
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "tags": [
+                    "Profile"
+                ],
+                "operationId": "changePassword",
+                "summary": "Change signed-in user password",
+                "responses": {
+                    "200": {
+                        "description": "Password changed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid password",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Cognito unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "aws.cognito.signin.user.admin"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePasswordRequestDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/email-change": {
+            "post": {
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "tags": [
+                    "Profile"
+                ],
+                "operationId": "initiateEmailChange",
+                "summary": "Initiate verified email change",
+                "responses": {
+                    "200": {
+                        "description": "Verification sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmailChangeInitiatedResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid email",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Cognito unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "aws.cognito.signin.user.admin"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailChangeRequestDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/email-change/confirm": {
+            "post": {
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "tags": [
+                    "Profile"
+                ],
+                "operationId": "confirmEmailChange",
+                "summary": "Confirm verified email change",
+                "responses": {
+                    "200": {
+                        "description": "Email changed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or expired code",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too many requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Cognito unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "aws.cognito.signin.user.admin"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmailChangeConfirmRequestDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/email-change/resend": {
+            "post": {
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "tags": [
+                    "Profile"
+                ],
+                "operationId": "resendEmailChangeCode",
+                "summary": "Resend email-change verification code",
+                "responses": {
+                    "200": {
+                        "description": "Verification resent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Cooldown active",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Cognito unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation or verification error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponseDTO"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": [
+                            "aws.cognito.signin.user.admin"
+                        ]
+                    }
+                ]
+            }
+        },
+        "/tours/destinations": {
+            "get": {
+                "tags": [
+                    "Tours"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Get destination suggestions for tour discovery (User Story 4)",
+                "description": "Public endpoint for registered and non-registered customers. Returns unique destination suggestions from currently available tours by case-insensitive partial matching.",
+                "parameters": [
+                    {
+                        "name": "destination",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 3
+                        },
+                        "example": "punta",
+                        "description": "The destination query string to search for. Minimum 3 characters."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A list of destinations matching the query",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DestinationListResponseDTO"
+                                },
+                                "example": {
+                                    "destinations": [
+                                        "Punta Cana, Dominican Republic",
+                                        "Barahona, Dominican Republic"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - destination query is missing or shorter than 3 characters",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Validation failed",
+                                    "errors": {
+                                        "destination": "destination must be at least 3 characters long"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error while reading tour data",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Internal server error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/tours/available": {
+            "get": {
+                "tags": [
+                    "Tours"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Get a paginated list of available tours (User Story 4)",
+                "description": "Public endpoint for registered and non-registered customers. Only tours marked available and meeting all provided filter conditions are returned.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        },
+                        "example": 1,
+                        "description": "The page number to retrieve. Must be an integer >= 1. Default is 1."
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 6,
+                            "minimum": 1,
+                            "maximum": 50
+                        },
+                        "example": 6,
+                        "description": "The number of items per page. Must be an integer between 1 and 50. Default is 6."
+                    },
+                    {
+                        "name": "destination",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "Any destination"
+                        },
+                        "example": "Punta Cana",
+                        "description": "Case-insensitive partial destination filter."
+                    },
+                    {
+                        "name": "startDate",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true
+                        },
+                        "example": "2025-01-04",
+                        "description": "Filter lower bound date in YYYY-MM-DD format."
+                    },
+                    {
+                        "name": "endDate",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true
+                        },
+                        "example": "2025-02-01",
+                        "description": "Filter upper bound date in YYYY-MM-DD format."
+                    },
+                    {
+                        "name": "duration",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "nullable": true
+                        },
+                        "example": "8-12 days",
+                        "description": "Duration filter; supports exact values (e.g. '7 days'), numeric ranges (e.g. '8-12 days'), and open-ended values (e.g. '12+ days')."
+                    },
+                    {
+                        "name": "adults",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 1
+                        },
+                        "example": 2,
+                        "description": "Requested adult guest count. Must be an integer >= 0."
+                    },
+                    {
+                        "name": "children",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0
+                        },
+                        "example": 1,
+                        "description": "Requested children guest count. Must be an integer >= 0. At least one total guest is required."
+                    },
+                    {
+                        "name": "mealPlan",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "BB",
+                                "HB",
+                                "FB",
+                                "AI"
+                            ],
+                            "nullable": true
+                        },
+                        "example": "BB,AI",
+                        "description": "Meal plan filter. Comma-separated values are supported. Allowed values: BB, HB, FB, AI."
+                    },
+                    {
+                        "name": "tourType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "RESORT",
+                                "CRUISE",
+                                "HIKE"
+                            ]
+                        },
+                        "example": "RESORT,CRUISE",
+                        "description": "Tour type filter. Comma-separated values are supported. Allowed values: RESORT, CRUISE, HIKE."
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "RATING_DESC",
+                                "RATING_ASC",
+                                "PRICE_DESC",
+                                "PRICE_ASC"
+                            ],
+                            "default": "RATING_DESC"
+                        },
+                        "example": "PRICE_ASC",
+                        "description": "Sort by RATING_DESC (Top rated first), RATING_ASC (Low rated first), PRICE_DESC (Highest price first), or PRICE_ASC (Lowest price first). Default is RATING_DESC."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of available tours. Can be an empty result set when filters match no tours.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TourListResponseDTO"
+                                },
+                                "examples": {
+                                    "results": {
+                                        "value": {
+                                            "tours": [
+                                                {
+                                                    "id": "123e4567-e89b-12d3-a456-426614174000",
+                                                    "name": "Garden Resort & Spa",
+                                                    "destination": "Punta Cana, Dominican Republic",
+                                                    "imageUrl": "https://example.com/tour-1-cover.jpg",
+                                                    "imageUrls": [
+                                                        "https://example.com/tour-1-cover.jpg",
+                                                        "https://example.com/tour-1-2.jpg"
+                                                    ],
+                                                    "startDate": "2025-01-04",
+                                                    "durations": [
+                                                        "7 days",
+                                                        "10 days",
+                                                        "12 days"
+                                                    ],
+                                                    "mealPlans": [
+                                                        "BB",
+                                                        "HB",
+                                                        "FB",
+                                                        "AI"
+                                                    ],
+                                                    "price": "from $1400 for 1 person",
+                                                    "currency": "USD",
+                                                    "availability": {
+                                                        "isAvailable": true,
+                                                        "adultsMaxValue": 4,
+                                                        "childrenMaxValue": 2,
+                                                        "totalMaxValue": 6
+                                                    },
+                                                    "rating": 5.0,
+                                                    "reviews": 19,
+                                                    "freeCancelation": "2024-12-25"
+                                                }
+                                            ],
+                                            "page": 1,
+                                            "pageSize": 6,
+                                            "totalPages": 1,
+                                            "totalItems": 1
+                                        }
+                                    },
+                                    "empty": {
+                                        "value": {
+                                            "tours": [],
+                                            "page": 1,
+                                            "pageSize": 6,
+                                            "totalPages": 0,
+                                            "totalItems": 0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - one or more query parameters are invalid",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Validation failed",
+                                    "errors": {
+                                        "startDate": "startDate must be in YYYY-MM-DD format",
+                                        "sortBy": "sortBy must be one of RATING_DESC, RATING_ASC, PRICE_DESC, PRICE_ASC"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error while reading tour data",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Internal server error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/tours/{id}": {
+            "get": {
+                "tags": [
+                    "Tours"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Get detailed information on a selected tour (User Story 5)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "The unique identifier of the tour"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detailed information about the selected tour",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TourDetailsDTO"
+                                },
+                                "example": {
+                                    "id": "123e4567-e89b-12d3-a456-426614174000",
+                                    "name": "Dolomites: 7-day guided hike",
+                                    "destination": "Dolomites Mountains, Italy",
+                                    "rating": 4.73,
+                                    "imageUrls": [
+                                        "https://example.com/image1.jpg",
+                                        "https://example.com/image2.jpg"
+                                    ],
+                                    "summary": "Experience the excitement of 7 days among the wonders of the Brenta Dolomites! Unforgettable excursions, breathtaking views, 7 days of adventure in a paradise.",
+                                    "freeCancelationDaysBefore": 10,
+                                    "durations": [
+                                        "7 days"
+                                    ],
+                                    "accomodiation": "During your hike in Dolomites, you will be accomodated in mountain huts. The tour package includes stays in shared dormitory-style rooms. Solo travelers will be placed with another traveler of the same gender, as indicated by the gender marker on their passports.",
+                                    "hotelName": null,
+                                    "hotelDescription": null,
+                                    "mealPlans": [
+                                        "Breakfast (BB)",
+                                        "Half-board (HB)",
+                                        "Full-board (FB)"
+                                    ],
+                                    "customDetails": {
+                                        "Tourguide": "English, Italian",
+                                        "Transfer": "Organized transfer from Milan airport.",
+                                        "Small group": "Maximum number of participants: 8"
+                                    },
+                                    "startDates": [
+                                        "2025-01-15",
+                                        "2025-01-22",
+                                        "2025-01-29"
+                                    ],
+                                    "guestQuantity": {
+                                        "adultsMaxValue": 8,
+                                        "childrenMaxValue": 0,
+                                        "totalMaxValue": 8
+                                    },
+                                    "price": {
+                                        "7 days": "$1400"
+                                    },
+                                    "mealSupplementsPerDay": {
+                                        "BB": "$0",
+                                        "HB": "$25",
+                                        "FB": "$40"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/{id}/reviews": {
+            "get": {
+                "tags": [
+                    "Tours"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Get customer reviews for a specific tour (User Story 5)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "The unique identifier of the tour"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        },
+                        "description": "The page number to retrieve. Default is 1."
+                    },
+                    {
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 4,
+                            "minimum": 1
+                        },
+                        "description": "The number of items per page. Default is 4."
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "RATING_DESC",
+                                "RATING_ASC",
+                                "NEWEST",
+                                "OLDEST"
+                            ],
+                            "default": "RATING_DESC"
+                        },
+                        "description": "Sort by RATING_DESC (Top rated first), RATING_ASC (Low rated first), NEWEST (Newest first), or OLDEST (Oldest first). Default is RATING_DESC."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A paginated list of customer reviews for the tour",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReviewListResponseDTO"
+                                },
+                                "example": {
+                                    "reviews": [
+                                        {
+                                            "authorName": "David",
+                                            "authorImageUrl": "https://example.com/author1.jpg",
+                                            "createdAt": "2024-06-06",
+                                            "rate": 5,
+                                            "reviewContent": "Incredible experience! The huts were cozy, and hiking the Brenta Dolomites was beyond breathtaking. Highly recommended for adventure seekers!"
+                                        }
+                                    ],
+                                    "page": 1,
+                                    "pageSize": 4,
+                                    "totalPages": 1,
+                                    "totalItems": 1
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/{id}/feedbacks": {
+            "put": {
+                "tags": [
+                    "Feedback"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Update the customer's own feedback",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "bookingId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FeedbackSubmissionRequestDTO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Feedback updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FeedbackResponseDTO"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid rating or comment"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - User does not own the booking"
+                    },
+                    "404": {
+                        "description": "Booking not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": ["aws.cognito.signin.user.admin"]
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Feedback"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Submit feedback for a completed or in-progress tour booking (User Story 9)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "The unique identifier of the tour"
+                    },
+                    {
+                        "name": "bookingId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "The unique identifier of the booking for which to submit feedback"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/FeedbackSubmissionRequestDTO"
+                            },
+                            "example": {
+                                "rating": 5,
+                                "comment": "Excellent tour experience! Highly recommended."
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Feedback submitted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FeedbackResponseDTO"
+                                },
+                                "example": {
+                                    "id": "123e4567-e89b-12d3-a456-426614174002",
+                                    "bookingId": "123e4567-e89b-12d3-a456-426614174001",
+                                    "tourId": "123e4567-e89b-12d3-a456-426614174000",
+                                    "rating": 5,
+                                    "comment": "Excellent tour experience! Highly recommended.",
+                                    "createdAt": "2025-01-20T10:30:00Z",
+                                    "updatedAt": "2025-01-20T10:30:00Z"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - Invalid rating or comment",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Rating must be between 1 and 5."
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not authorized to submit feedback for this booking",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "You are not authorized to submit feedback for this booking."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found - Booking or tour not found",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Booking not found."
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Feedback already exists; use PUT to update it"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": ["aws.cognito.signin.user.admin"]
+                    }
+                ]
+            }
+        },
+        "/bookings": {
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Create a new tour booking (User Story 6)",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateBookingRequestDetailsDTO"
+                            },
+                            "example": {
+                                "userId": "123e4567-e89b-12d3-a456-426614174000",
+                                "tourId": "123e4567-e89b-12d3-a456-426614174001",
+                                "date": "2025-01-15",
+                                "duration": "7 days",
+                                "mealPlan": "BB",
+                                "guests": {
+                                    "adult": 1,
+                                    "children": 0
+                                },
+                                "personalDetails": [
+                                    {
+                                        "firstName": "Jhonson",
+                                        "lastName": "Doe"
+                                    },
+                                    {
+                                        "firstName": "Ann",
+                                        "lastName": "Doe"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Booking created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateBookingResponseDetailsDTO"
+                                },
+                                "example": {
+                                    "freeCancelation": "2025-01-05",
+                                    "details": "You have booked at Tropical Caribe Hotel, starting date January 15, 2025 (7 days), Breakfast (BB) for 1 adult successfully. Please upload your travel documents to the booking on the 'My Tours' page and wait for the Travel Agent to contact you."
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - User is not authorized to perform this action",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Role 'CUSTOMER' is not authorized to perform this action."
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": ["aws.cognito.signin.user.admin"]
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Bookings"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Get bookings visible to the authenticated customer or assigned Travel Agent",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "A list of bookings for the user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookedTourListResponseDTO"
+                                },
+                                "example": {
+                                    "bookings": [
+                                        {
+                                            "id": "123e4567-e89b-12d3-a456-426614174000",
+                                            "state": "BOOKED",
+                                            "tourImageUrl": "https://example.com/tour-image.jpg",
+                                            "name": "Tropical Caribe",
+                                            "destination": "Punta Cana, Dominican Republic",
+                                            "customerEmail": "jhonson_doe@nomail.com",
+                                            "tourDetails": {
+                                                "date": "Jan 17, 2025 (7 days)",
+                                                "mealPlan": "Breakfast (BB)",
+                                                "guests": "Jhonson Doe (1 adult)",
+                                                "totalPrice": "$1400",
+                                                "documents": "0 items"
+                                            },
+                                            "travelAgent": {
+                                                "name": "Tyrone Boyer",
+                                                "email": "tyroneboyer@gmail.com",
+                                                "phone": "480-221-1885",
+                                                "messenger": "https://example.com/messenger-link"
+                                            },
+                                            "canceledBy": null,
+                                            "cancelReason": null
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Authentication is required",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "UNAUTHORIZED",
+                                    "message": "Authentication is required"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Role is not permitted to access bookings",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "FORBIDDEN",
+                                    "message": "You are not allowed to access bookings"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": ["aws.cognito.signin.user.admin"]
+                    }
+                ],
+                "description": "Customers receive only bookings they own. Travel Agents receive only bookings assigned to them. Client-supplied user identifiers are not used for authorization."
+            }
+        },
+        "/bookings/{id}": {
+            "put": {
+                "tags": ["Bookings"],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Update an existing tour booking (User Story 6.2)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "description": "The unique identifier of the booking"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "duration": { "type": "string", "description": "Selected duration (e.g. '7 days')" },
+                                    "mealPlan": { "type": "string", "description": "Selected meal plan (e.g. 'BB', 'HB', 'FB', 'AI')" },
+                                    "offlineApproval": { "type": "boolean", "description": "Flag for Travel Agents to indicate the customer already verbally approved the changes." },
+                                    "guests": {
+                                        "type": "object",
+                                        "properties": {
+                                            "adult": { "type": "integer", "description": "Number of adults" },
+                                            "children": { "type": "integer", "description": "Number of children" }
+                                        },
+                                        "required": ["adult", "children"],
+                                        "description": "Guest counts"
+                                    },
+                                    "personalDetails": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "firstName": { "type": "string" },
+                                                "lastName": { "type": "string" }
+                                            },
+                                            "required": ["firstName", "lastName"]
+                                        },
+                                        "description": "Personal details of the guests"
+                                    }
+                                },
+                                "required": ["duration", "mealPlan", "guests", "personalDetails"]
+                            },
+                            "example": { "duration": "7 days", "mealPlan": "BB", "guests": { "adult": 2, "children": 1 }, "personalDetails": [{ "firstName": "Jhonson", "lastName": "Doe" }] }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Booking updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/BookedTourListResponseDTO" }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "content": {
+                            "application/json": {
+                                "example": { "message": "Invalid booking request" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Authentication is required",
+                        "content": {
+                            "application/json": {
+                                "example": { "code": "UNAUTHORIZED", "message": "Authentication is required" }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Role is not permitted to access bookings",
+                        "content": {
+                            "application/json": {
+                                "example": { "code": "FORBIDDEN", "message": "You are not allowed to access bookings" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking does not exist or is not accessible to the authenticated principal",
+                        "content": {
+                            "application/json": {
+                                "example": { "code": "BOOKING_NOT_FOUND", "message": "Booking not found" }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Booking lifecycle does not allow the requested operation",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BOOKING_STATE_CONFLICT",
+                                    "message": "Booking cannot be updated while it is in CONFIRMED state",
+                                    "currentState": "CONFIRMED",
+                                    "allowedStates": ["BOOKED"]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [ { "bearerAuth": ["aws.cognito.signin.user.admin"] } ],
+                "description": "Customers may access only their own booking and Travel Agents only bookings assigned to them. Missing and inaccessible IDs return the same 404 response. The operation is allowed only while the booking is BOOKED or CONFIRMED."
+            },
+            "delete": {
+                "tags": ["Bookings"],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Cancel a tour booking (User Story 6.3)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": { "type": "string", "format": "uuid" },
+                        "description": "The unique identifier of the booking"
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "cancelReason": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Customer's Emergency",
+                                            "Hotel Emergency",
+                                            "Safety Concerns",
+                                            "Insufficient bookings"
+                                        ]
+                                    }
+                                }
+                            },
+                            "example": {
+                                "cancelReason": "Customer's Emergency"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Booking cancelled successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": { "type": "string" },
+                                        "refundEligible": { "type": "boolean" },
+                                        "penaltyAmount": { "type": "number", "description": "Cancellation penalty amount in USD" }
+                                    },
+                                    "required": ["message", "refundEligible", "penaltyAmount"]
+                                },
+                                "example": { "message": "Booking cancelled successfully", "refundEligible": false, "penaltyAmount": 350 }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Authentication is required",
+                        "content": {
+                            "application/json": {
+                                "example": { "code": "UNAUTHORIZED", "message": "Authentication is required" }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Role is not permitted to access bookings",
+                        "content": {
+                            "application/json": {
+                                "example": { "code": "FORBIDDEN", "message": "You are not allowed to access bookings" }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking does not exist or is not accessible to the authenticated principal",
+                        "content": {
+                            "application/json": {
+                                "example": { "code": "BOOKING_NOT_FOUND", "message": "Booking not found" }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Booking lifecycle does not allow the requested operation",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BOOKING_STATE_CONFLICT",
+                                    "message": "Booking cannot be cancelled while it is in STARTED state",
+                                    "currentState": "STARTED",
+                                    "allowedStates": ["BOOKED", "CONFIRMED"]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [ { "bearerAuth": ["aws.cognito.signin.user.admin"] } ],
+                "description": "Customers may access only their own booking and Travel Agents only bookings assigned to them. Missing and inaccessible IDs return the same 404 response. The operation is allowed only while the booking is BOOKED or CONFIRMED."
+            }
+        },
+        "/bookings/{id}/documents": {
+            "post": {
+                "tags": ["Bookings"],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Create a presigned URL for uploading a booking document",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string"},
+                        "description": "The unique identifier of the booking"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["name", "fileFormat", "contentType"],
+                                "properties": {
+                                    "name": {"type": "string", "maxLength": 255},
+                                    "fileFormat": {"type": "string", "maxLength": 20},
+                                    "contentType": {"type": "string"}
+                                }
+                            },
+                            "example": {
+                                "name": "Passport_Ada_Lovelace.pdf",
+                                "fileFormat": "PDF",
+                                "contentType": "application/pdf"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Document metadata stored and a five-minute presigned upload URL returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["document", "uploadUrl"],
+                                    "properties": {
+                                        "document": {
+                                            "type": "object",
+                                            "required": ["id", "name", "fileFormat"],
+                                            "properties": {
+                                                "id": {"type": "string", "format": "uuid"},
+                                                "name": {"type": "string"},
+                                                "fileFormat": {"type": "string"}
+                                            }
+                                        },
+                                        "uploadUrl": {"type": "string", "format": "uri"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {"description": "Booking ID, JSON body, or document metadata is invalid"},
+                    "401": {"description": "Authentication is required"},
+                    "403": {"description": "Only the booking customer may upload documents"},
+                    "404": {"description": "Booking does not exist or is inaccessible"},
+                    "409": {"description": "Booking lifecycle does not allow document upload"}
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}],
+                "description": "Only the booking owner may create an upload URL. The returned URL is valid for five minutes and accepts a PUT request with the declared content type."
+            },
+            "get": {
+                "tags": ["Bookings"],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "List document metadata uploaded for a booking",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string"},
+                        "description": "The unique identifier of the booking"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Document metadata visible to the authenticated principal",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["documents"],
+                                    "properties": {
+                                        "documents": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": ["id", "name"],
+                                                "properties": {
+                                                    "id": {"type": "string"},
+                                                    "name": {"type": "string"},
+                                                    "fileFormat": {"type": "string"}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {"description": "Booking ID is required"},
+                    "401": {"description": "Authentication is required"},
+                    "403": {"description": "Forbidden"},
+                    "404": {"description": "Booking does not exist or is inaccessible"}
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}],
+                "description": "Customers may access only their own booking, Travel Agents only bookings assigned to them, and admins any booking. The response deliberately excludes download URLs; request one when the user selects a document. Missing and inaccessible IDs return the same 404 response."
+            }
+        },
+        "/bookings/{id}/documents/{documentId}/download-url": {
+            "get": {
+                "tags": ["Bookings"],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Create a temporary download URL for one booking document",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string"},
+                        "description": "The unique identifier of the booking"
+                    },
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string"},
+                        "description": "The unique identifier of the document"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A five-minute presigned download URL",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["downloadUrl"],
+                                    "properties": {
+                                        "downloadUrl": {"type": "string", "format": "uri"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {"description": "Booking ID and document ID are required"},
+                    "401": {"description": "Authentication is required"},
+                    "403": {"description": "Forbidden"},
+                    "404": {"description": "Booking or document does not exist or is inaccessible"}
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}],
+                "description": "Creates a URL only after the authorized user requests a specific document. The URL is valid for five minutes."
+            }
+        },
+        "/bookings/{id}/documents/{documentId}": {
+            "put": {
+                "tags": ["Bookings"],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Confirm a booking document upload",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string"}
+                    },
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string"}
+                    }
+                ],
+                "responses": {
+                    "200": {"description": "Document upload confirmed"},
+                    "400": {"description": "Booking ID and document ID are required"},
+                    "401": {"description": "Authentication is required"},
+                    "403": {"description": "Only the booking customer may confirm document uploads"},
+                    "404": {"description": "Booking or document does not exist or is inaccessible"}
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}],
+                "description": "Confirms the document after the customer has uploaded it using the presigned S3 URL. The operation is idempotent."
+            },
+            "delete": {
+                "tags": ["Bookings"],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Delete a booking document",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string"},
+                        "description": "The unique identifier of the booking"
+                    },
+                    {
+                        "name": "documentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string"},
+                        "description": "The unique identifier of the document"
+                    }
+                ],
+                "responses": {
+                    "204": {"description": "Document deleted successfully"},
+                    "400": {"description": "Booking ID and document ID are required"},
+                    "401": {"description": "Authentication is required"},
+                    "403": {"description": "Only the booking customer may delete documents"},
+                    "404": {"description": "Booking or document does not exist or is inaccessible"},
+                    "409": {"description": "Booking lifecycle does not allow document deletion"}
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}],
+                "description": "Removes the document metadata from the booking and deletes the associated S3 object. Only customers may delete documents from their own BOOKED or CONFIRMED bookings."
+            }
+        },
+        "/bookings/{id}/confirm": {
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Confirm a booking after document check (User Story 8.1)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string", "format": "uuid"},
+                        "description": "The unique identifier of the booking"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking confirmed successfully",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Booking confirmed successfully"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "content": {
+                            "application/json": {
+                                "example": { "message": "Booking ID is required" }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Authentication is required",
+                        "content": {
+                            "application/json": {
+                                "example": { "code": "UNAUTHORIZED", "message": "Authentication is required" }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - Role is not permitted to perform this action",
+                        "content": {
+                            "application/json": {
+                                "example": { "message": "Customers are not permitted to confirm bookings." }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking does not exist or is not accessible to the authenticated principal",
+                        "content": {
+                            "application/json": {
+                                "example": { "code": "BOOKING_NOT_FOUND", "message": "Booking not found" }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - Booking is not in BOOKED state",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "code": "BOOKING_STATE_CONFLICT",
+                                    "message": "Booking cannot be confirmed while it is in CONFIRMED state",
+                                    "currentState": "CONFIRMED",
+                                    "allowedStates": ["BOOKED"]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}]
+            }
+        },
+        "/bookings/{id}/reject-documents": {
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Reject customer documents (User Story 8.1)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string", "format": "uuid"},
+                        "description": "The unique identifier of the booking"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "reason": {
+                                        "type": "string",
+                                        "description": "The reason the documents were rejected"
+                                    }
+                                },
+                                "required": ["reason"]
+                            },
+                            "example": {
+                                "reason": "The passport uploaded is expired. Please upload a valid document."
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Documents rejected successfully and customer notified",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Documents rejected and customer notified"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input or missing reason"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role is not permitted to perform this action",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Customers are not permitted to reject documents."
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Booking not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Booking is not in BOOKED state"
+                    }
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}]
+            }
+        },
+        "/bookings/{id}/confirm-edit": {
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Confirm staged booking edits (US 8.2)",
+                "description": "Allows a customer to approve changes proposed by a Travel Agent.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string", "format": "uuid"},
+                        "description": "The unique identifier of the booking"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tour booking changes approved successfully."
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input or no pending edits"
+                    },
+                    "403": {
+                        "description": "Forbidden - Only the customer can approve booking changes"
+                    },
+                    "404": {
+                        "description": "Not found - Booking not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Booking state conflict"
+                    }
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}]
+            }
+        },
+        "/bookings/{id}/decline-edit": {
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Decline staged booking edits (US 8.2)",
+                "description": "Allows a customer to decline changes proposed by a Travel Agent, resulting in the cancellation of the tour.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {"type": "string", "format": "uuid"},
+                        "description": "The unique identifier of the booking"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Changes declined; booking has been canceled successfully."
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input or no pending edits"
+                    },
+                    "403": {
+                        "description": "Forbidden - Only the customer can decline booking changes"
+                    },
+                    "404": {
+                        "description": "Not found - Booking not found"
+                    },
+                    "409": {
+                        "description": "Conflict - Booking state conflict"
+                    }
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}]
+            }
+        },
+        "/bookings/validate": {
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "summary": "Validate package availability and pricing before checkout booking progression",
+                "description": "Revalidates selected package/date/capacity against current data and detects pricing changes at checkout time.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ValidateBookingRequestDTO"
+                            },
+                            "example": {
+                                "packageId": "123e4567-e89b-12d3-a456-426614174001",
+                                "startDate": "2027-01-15",
+                                "duration": "7 days",
+                                "quotedPrice": 3000,
+                                "adults": 2,
+                                "children": 1
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Booking validation successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidateBookingSuccessResponseDTO"
+                                },
+                                "example": {
+                                    "message": "Booking validation successful",
+                                    "isValid": true,
+                                    "data": {
+                                        "packageId": "123e4567-e89b-12d3-a456-426614174001",
+                                        "startDate": "2027-01-15",
+                                        "duration": "7 days",
+                                        "guestCount": 3,
+                                        "currentTotal": 3000,
+                                        "currency": "USD"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Missing or invalid payload fields",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidateBookingErrorResponseDTO"
+                                },
+                                "example": {
+                                    "message": "Validation failed",
+                                    "errors": {
+                                        "packageId": "packageId is required",
+                                        "startDate": "startDate must be in YYYY-MM-DD format"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - Package/availability/capacity/pricing changed or unavailable",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidateBookingErrorResponseDTO"
+                                },
+                                "example": {
+                                    "message": "Booking validation conflict",
+                                    "errors": {
+                                        "pricing": {
+                                            "reason": "Quoted price is no longer valid",
+                                            "quotedTotal": 3000,
+                                            "currentTotal": 3200,
+                                            "currency": "USD"
+                                        }
+                                    },
+                                    "code": "PRICE_CHANGED"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - A valid Cognito access token is required"
+                    },
+                    "403": {
+                        "description": "Forbidden - The authenticated role is not permitted"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": ["aws.cognito.signin.user.admin"]
+                    }
+                ]
+            }
+        },
+        "/reports/generate": {
+            "post": {
+                "tags": ["Reports"],
+                "summary": "Generate Report (User Story 11)",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/GenerateReportRequestDTO" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Report generated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/GenerateReportResponseDTO" }
+                            }
+                        }
+                    }
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}]
+            }
+        },
+        "/reports/download": {
+            "get": {
+                "tags": ["Reports"],
+                "summary": "Download Report (User Story 11)",
+                "x-amazon-apigateway-integration": {
+                    "type": "aws_proxy",
+                    "httpMethod": "POST",
+                    "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:api_handler:${lambdas_alias_name}/invocations",
+                    "passthroughBehavior": "when_no_match"
+                },
+                "parameters": [
+                    {
+                        "name": "cachedReportKey",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": true,
+                        "schema": { "type": "string", "enum": ["pdf", "excel", "csv"] }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Report file link retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": { "$ref": "#/components/schemas/DownloadReportResponseDTO" }
+                            }
+                        }
+                    }
+                },
+                "security": [{"bearerAuth": ["aws.cognito.signin.user.admin"]}]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UpdateProfileRequestDTO": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": false,
+                "properties": {
+                    "firstName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50,
+                        "pattern": "^[A-Za-z'-]+$",
+                        "description": "Updated given name. Only Latin letters, hyphens, and apostrophes are allowed."
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 50,
+                        "pattern": "^[A-Za-z'-]+$",
+                        "description": "Updated family name. Only Latin letters, hyphens, and apostrophes are allowed."
+                    },
+                    "profilePhoto": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 2048,
+                        "description": "Optional profile-photo reference."
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Immutable in the general profile update. When supplied, it must match the registered email. Use POST /profile/email-change for verified email changes."
+                    }
+                }
+            },
+            "UpdateProfileResponseDTO": {
+                "type": "object",
+                "required": [
+                    "message",
+                    "user"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "type": "object",
+                        "required": [
+                            "email",
+                            "role"
+                        ],
+                        "properties": {
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            "firstName": {
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "type": "string"
+                            },
+                            "role": {
+                                "type": "string",
+                                "enum": [
+                                    "CUSTOMER",
+                                    "TRAVEL_AGENT"
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "SignUpRequestDTO": {
+                "type": "object",
+                "properties": {
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password"
+                    }
+                },
+                "required": [
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "password"
+                ]
+            },
+            "SignUpResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Confirmation message for successful sign-up"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            },
+            "SignInRequestDTO": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password"
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ]
+            },
+            "SignInResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string",
+                        "description": "Cognito access token used as the Bearer token for protected APIs"
+                    },
+                    "idToken": {
+                        "type": "string",
+                        "description": "Cognito ID token used only for client-side identity information"
+                    },
+                    "token": {
+                        "type": "string",
+                        "deprecated": true,
+                        "description": "Backward-compatible alias of accessToken"
+                    },
+                    "expiresIn": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Access-token lifetime in seconds"
+                    },
+                    "tokenType": {
+                        "type": "string",
+                        "example": "Bearer"
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            "firstName": {
+                                "type": "string"
+                            },
+                            "lastName": {
+                                "type": "string"
+                            },
+                            "role": {
+                                "type": "string",
+                                "enum": [
+                                    "CUSTOMER",
+                                    "TRAVEL_AGENT",
+                                    "ADMIN"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "email",
+                            "firstName",
+                            "lastName"
+                        ]
+                    },
+                    "role": {
+                        "type": "string",
+                        "description": "Legacy top-level role field",
+                        "enum": [
+                            "CUSTOMER",
+                            "TRAVEL_AGENT",
+                            "ADMIN"
+                        ]
+                    },
+                    "userName": {
+                        "type": "string",
+                        "description": "Legacy top-level full name field"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Legacy top-level email field"
+                    }
+                },
+                "required": [
+                    "accessToken",
+                    "idToken",
+                    "expiresIn",
+                    "tokenType",
+                    "user"
+                ]
+            },
+            "DestinationListResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "destinations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "List of destinations matching the query"
+                    }
+                },
+                "required": [
+                    "destinations"
+                ]
+            },
+            "TourListResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "tours": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Unique identifier for the tour"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the tour"
+                                },
+                                "destination": {
+                                    "type": "string",
+                                    "description": "Destination of the tour"
+                                },
+                                "imageUrl": {
+                                    "type": "string",
+                                    "description": "Primary image URL used by tour cards"
+                                },
+                                "imageUrls": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "description": "Additional image URLs for the tour"
+                                },
+                                "startDate": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "description": "Start date of the tour. End date can be derived from startDate plus selected duration."
+                                },
+                                "durations": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "description": "Available durations for the tour"
+                                },
+                                "mealPlans": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "description": "Available meal plans for the tour"
+                                },
+                                "price": {
+                                    "type": "string",
+                                    "description": "Price information for the tour"
+                                },
+                                "currency": {
+                                    "type": "string",
+                                    "description": "Currency code for pricing values"
+                                },
+                                "availability": {
+                                    "type": "object",
+                                    "properties": {
+                                        "isAvailable": {
+                                            "type": "boolean"
+                                        },
+                                        "adultsMaxValue": {
+                                            "type": "integer"
+                                        },
+                                        "childrenMaxValue": {
+                                            "type": "integer"
+                                        },
+                                        "totalMaxValue": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "isAvailable",
+                                        "adultsMaxValue",
+                                        "childrenMaxValue",
+                                        "totalMaxValue"
+                                    ],
+                                    "description": "Availability and guest-capacity information"
+                                },
+                                "rating": {
+                                    "type": "number",
+                                    "description": "Rating of the tour"
+                                },
+                                "reviews": {
+                                    "type": "integer",
+                                    "description": "Number of reviews for the tour"
+                                },
+                                "freeCancelation": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "description": "Date until which free cancellation is available"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "name",
+                                "destination",
+                                "startDate",
+                                "durations",
+                                "mealPlans",
+                                "price",
+                                "rating",
+                                "reviews",
+                                "currency",
+                                "availability"
+                            ]
+                        },
+                        "description": "List of tours"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "description": "Current page number"
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "description": "Number of items per page"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "description": "Total number of pages"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "description": "Total number of items"
+                    }
+                },
+                "required": [
+                    "tours",
+                    "page",
+                    "pageSize",
+                    "totalPages",
+                    "totalItems"
+                ]
+            },
+            "TourDetailsDTO": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique identifier for the tour"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the tour"
+                    },
+                    "destination": {
+                        "type": "string",
+                        "description": "Destination of the tour"
+                    },
+                    "rating": {
+                        "type": "number",
+                        "description": "Rating of the tour"
+                    },
+                    "imageUrls": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "URLs of images related to the tour"
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "Summary of the tour"
+                    },
+                    "freeCancelationDaysBefore": {
+                        "type": "integer",
+                        "description": "Number of days before the start date for free cancellation"
+                    },
+                    "durations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Available durations for the tour"
+                    },
+                    "accomodiation": {
+                        "type": "string",
+                        "description": "Accommodation details for the tour"
+                    },
+                    "hotelName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Name of the hotel (if applicable)"
+                    },
+                    "hotelDescription": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Description of the hotel (if applicable)"
+                    },
+                    "mealPlans": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Available meal plans for the tour"
+                    },
+                    "customDetails": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "description": "Custom details about the tour"
+                    },
+                    "startDates": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "date"
+                        },
+                        "description": "Available start dates for the tour"
+                    },
+                    "guestQuantity": {
+                        "type": "object",
+                        "properties": {
+                            "adultsMaxValue": {
+                                "type": "integer",
+                                "description": "Maximum number of adults allowed"
+                            },
+                            "childrenMaxValue": {
+                                "type": "integer",
+                                "description": "Maximum number of children allowed"
+                            },
+                            "totalMaxValue": {
+                                "type": "integer",
+                                "description": "Maximum total number of guests allowed"
+                            }
+                        },
+                        "description": "Guest quantity details"
+                    },
+                    "price": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "description": "Price details for the tour"
+                    },
+                    "mealSupplementsPerDay": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "description": "Meal supplement costs per day"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "destination",
+                    "rating",
+                    "imageUrls",
+                    "summary",
+                    "freeCancelationDaysBefore",
+                    "durations",
+                    "accomodiation",
+                    "mealPlans",
+                    "customDetails",
+                    "startDates",
+                    "guestQuantity",
+                    "price",
+                    "mealSupplementsPerDay"
+                ]
+            },
+            "ReviewListResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "reviews": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "authorName": {
+                                    "type": "string",
+                                    "description": "Name of the review author"
+                                },
+                                "authorImageUrl": {
+                                    "type": "string",
+                                    "description": "URL of the author's image"
+                                },
+                                "createdAt": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "description": "Date when the review was created"
+                                },
+                                "rate": {
+                                    "type": "integer",
+                                    "description": "Rating given by the author"
+                                },
+                                "reviewContent": {
+                                    "type": "string",
+                                    "description": "Content of the review"
+                                }
+                            },
+                            "required": [
+                                "authorName",
+                                "createdAt",
+                                "rate",
+                                "reviewContent"
+                            ]
+                        },
+                        "description": "List of reviews"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "description": "Current page number"
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "description": "Number of items per page"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "description": "Total number of pages"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "description": "Total number of items"
+                    }
+                },
+                "required": [
+                    "reviews",
+                    "page",
+                    "pageSize",
+                    "totalPages",
+                    "totalItems"
+                ]
+            },
+            "CreateBookingRequestDetailsDTO": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string",
+                        "description": "Unique identifier for the user"
+                    },
+                    "tourId": {
+                        "type": "string",
+                        "description": "Unique identifier for the tour"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date of the booking"
+                    },
+                    "duration": {
+                        "type": "string",
+                        "description": "Duration of the tour"
+                    },
+                    "mealPlan": {
+                        "type": "string",
+                        "description": "Selected meal plan"
+                    },
+                    "guests": {
+                        "type": "object",
+                        "properties": {
+                            "adult": {
+                                "type": "integer",
+                                "description": "Number of adults"
+                            },
+                            "children": {
+                                "type": "integer",
+                                "description": "Number of children"
+                            }
+                        },
+                        "description": "Guest details"
+                    },
+                    "personalDetails": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "firstName": {
+                                    "type": "string",
+                                    "description": "First name of the guest"
+                                },
+                                "lastName": {
+                                    "type": "string",
+                                    "description": "Last name of the guest"
+                                }
+                            },
+                            "required": [
+                                "firstName",
+                                "lastName"
+                            ]
+                        },
+                        "description": "Personal details of the guests"
+                    }
+                },
+                "required": [
+                    "userId",
+                    "tourId",
+                    "date",
+                    "duration",
+                    "mealPlan",
+                    "guests",
+                    "personalDetails"
+                ]
+            },
+            "CreateBookingResponseDetailsDTO": {
+                "type": "object",
+                "properties": {
+                    "freeCancelation": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Date until which free cancellation is available"
+                    },
+                    "details": {
+                        "type": "string",
+                        "description": "Details of the booking confirmation"
+                    }
+                },
+                "required": [
+                    "freeCancelation",
+                    "details"
+                ]
+            },
+            "ValidateBookingRequestDTO": {
+                "type": "object",
+                "properties": {
+                    "packageId": {
+                        "type": "string",
+                        "description": "Selected package/tour identifier"
+                    },
+                    "startDate": {
+                        "type": "string",
+                        "format": "date",
+                        "description": "Selected package start date"
+                    },
+                    "duration": {
+                        "type": "string",
+                        "description": "Selected package duration label"
+                    },
+                    "quotedPrice": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Total price shown to the user at search/checkout start"
+                    },
+                    "adults": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Requested adult guests"
+                    },
+                    "children": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Requested children guests"
+                    }
+                },
+                "required": [
+                    "packageId",
+                    "startDate",
+                    "duration",
+                    "quotedPrice",
+                    "adults",
+                    "children"
+                ]
+            },
+            "ValidateBookingSuccessResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "isValid": {
+                        "type": "boolean"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "packageId": {
+                                "type": "string"
+                            },
+                            "startDate": {
+                                "type": "string",
+                                "format": "date"
+                            },
+                            "duration": {
+                                "type": "string"
+                            },
+                            "guestCount": {
+                                "type": "integer"
+                            },
+                            "currentTotal": {
+                                "type": "number"
+                            },
+                            "currency": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "packageId",
+                            "startDate",
+                            "duration",
+                            "guestCount",
+                            "currentTotal",
+                            "currency"
+                        ]
+                    }
+                },
+                "required": [
+                    "message",
+                    "isValid",
+                    "data"
+                ]
+            },
+            "ValidateBookingErrorResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "description": "Validation or conflict details by field/component"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "Conflict code for state/availability/pricing issues"
+                    }
+                },
+                "required": [
+                    "message",
+                    "errors"
+                ]
+            },
+            "BookedTourListResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "bookings": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Unique identifier for the booking"
+                                },
+                                "state": {
+                                    "type": "string",
+                                    "description": "State of the booking"
+                                },
+                                "tourImageUrl": {
+                                    "type": "string",
+                                    "description": "URL of the tour image"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the tour"
+                                },
+                                "destination": {
+                                    "type": "string",
+                                    "description": "Destination of the tour"
+                                },
+                                "customerEmail": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "description": "Email of the customer who created the booking"
+                                },
+                                "tourDetails": {
+                                    "type": "object",
+                                    "properties": {
+                                        "date": {
+                                            "type": "string",
+                                            "description": "Date and duration of the tour"
+                                        },
+                                        "mealPlan": {
+                                            "type": "string",
+                                            "description": "Selected meal plan"
+                                        },
+                                        "guests": {
+                                            "type": "string",
+                                            "description": "Guest details"
+                                        },
+                                        "totalPrice": {
+                                            "type": "string",
+                                            "description": "Total price of the booking"
+                                        },
+                                        "documents": {
+                                            "type": "string",
+                                            "description": "Number of documents uploaded"
+                                        }
+                                    },
+                                    "required": [
+                                        "date",
+                                        "mealPlan",
+                                        "guests",
+                                        "totalPrice",
+                                        "documents"
+                                    ]
+                                },
+                                "travelAgent": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "description": "Name of the travel agent"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "description": "Email of the travel agent"
+                                        },
+                                        "phone": {
+                                            "type": "string",
+                                            "description": "Phone number of the travel agent"
+                                        },
+                                        "messenger": {
+                                            "type": "string",
+                                            "description": "Messenger link for the travel agent"
+                                        }
+                                    },
+                                    "required": [
+                                        "name",
+                                        "email",
+                                        "phone",
+                                        "messenger"
+                                    ]
+                                },
+                                "canceledBy": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "description": "Who canceled the booking"
+                                },
+                                "canceledByRole": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "enum": [
+                                        "CUSTOMER",
+                                        "TRAVEL_AGENT",
+                                        "ADMIN",
+                                        null
+                                    ],
+                                    "description": "Role of the user who canceled the booking"
+                                },
+                                "cancelReason": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "description": "Reason for cancellation"
+                                },
+                                "documentRejectionReason": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ],
+                                    "description": "Reason the TA rejected the documents, if any"
+                                },
+                                "pendingEdits": {
+                                    "type": [
+                                        "object",
+                                        "null"
+                                    ],
+                                    "description": "Contains staged edits waiting for customer approval"
+                                },
+                                "personalDetails": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "firstName": { "type": "string" },
+                                            "lastName": { "type": "string" }
+                                        },
+                                        "required": ["firstName", "lastName"]
+                                    },
+                                    "description": "Personal details of the guests"
+                                }
+                            },
+                            "required": [
+                                "id",
+                                "state",
+                                "tourImageUrl",
+                                "name",
+                                "destination",
+                                "customerEmail",
+                                "tourDetails",
+                                "travelAgent",
+                                "personalDetails"
+                            ]
+                        },
+                        "description": "List of bookings"
+                    }
+                },
+                "required": [
+                    "bookings"
+                ]
+            },
+            "FeedbackSubmissionRequestDTO": {
+                "type": "object",
+                "required": ["rating"],
+                "additionalProperties": false,
+                "properties": {
+                    "rating": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5,
+                        "description": "Rating score from 1 (poor) to 5 (excellent)"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 500,
+                        "description": "Optional feedback comment. Required for ratings 1-3, optional for 4-5."
+                    }
+                }
+            },
+            "FeedbackResponseDTO": {
+                "type": "object",
+                "required": ["id", "bookingId", "tourId", "rating", "createdAt", "updatedAt"],
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Unique identifier for the feedback"
+                    },
+                    "bookingId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Booking ID this feedback is associated with"
+                    },
+                    "tourId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Tour ID this feedback is for"
+                    },
+                    "rating": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5,
+                        "description": "Rating score from 1 (poor) to 5 (excellent)"
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "Feedback comment"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the feedback was created"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the feedback was last updated"
+                    }
+                }
+            },
+            "GenerateReportRequestDTO": {
+                "type": "object",
+                "properties": {
+                    "reportType": { "type": "string", "enum": ["STAFF_PERFORMANCE", "SALES"] },
+                    "startDate": { "type": "string", "format": "date" },
+                    "endDate": { "type": "string", "format": "date" },
+                    "location": { "type": "string" }
+                },
+                "required": ["reportType", "startDate", "endDate", "location"]
+            },
+            "GenerateReportResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "cachedReportKey": { "type": "string" },
+                    "reportType": { "type": "string" },
+                    "reportData": {
+                        "type": "object",
+                        "properties": {
+                            "columns": { "type": "array", "items": { "type": "string" } },
+                            "rows": { "type": "array", "items": { "type": "array", "items": { "type": "string" } } }
+                        }
+                    }
+                }
+            },
+            "DownloadReportResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "fileUrl": { "type": "string", "format": "uri" }
+                }
+            }
+        ,
+            "ProfileDTO": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "firstName": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Current verified account email"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "CUSTOMER",
+                            "TRAVEL_AGENT",
+                            "ADMIN"
+                        ]
+                    },
+                    "profilePhoto": {
+                        "type": "string",
+                        "maxLength": 2048,
+                        "description": "Optional profile-photo reference"
+                    }
+                },
+                "required": [
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "role"
+                ]
+            }
+        ,
+            "ProfileResponseDTO": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/ProfileDTO"
+                    }
+                },
+                "required": [
+                    "user"
+                ]
+            }
+        ,
+            "ProfileUpdateResponseDTO": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/ProfileDTO"
+                    }
+                },
+                "required": [
+                    "message",
+                    "user"
+                ]
+            }
+        ,
+            "ChangePasswordRequestDTO": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "oldPassword": {
+                        "type": "string",
+                        "minLength": 1,
+                        "writeOnly": true
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "minLength": 8,
+                        "maxLength": 64,
+                        "writeOnly": true,
+                        "description": "Requires uppercase, lowercase, number, and special character."
+                    }
+                },
+                "required": [
+                    "oldPassword",
+                    "newPassword"
+                ]
+            }
+        ,
+            "EmailChangeRequestDTO": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "newEmail": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "currentPassword": {
+                        "type": "string",
+                        "minLength": 1,
+                        "writeOnly": true
+                    }
+                },
+                "required": [
+                    "newEmail",
+                    "currentPassword"
+                ]
+            }
+        ,
+            "EmailChangeConfirmRequestDTO": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                    }
+                },
+                "required": [
+                    "code"
+                ]
+            }
+        ,
+            "MessageResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "message"
+                ]
+            }
+        ,
+            "EmailChangeInitiatedResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "pendingEmail": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "delivery": {
+                        "type": "object",
+                        "properties": {
+                            "medium": {
+                                "type": "string"
+                            },
+                            "destination": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "message",
+                    "pendingEmail"
+                ]
+            }
+        ,
+            "ErrorResponseDTO": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "details": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "code",
+                    "message"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "description": "Cognito access token sent as Authorization: Bearer <accessToken>. ID tokens are not accepted for protected API authorization.",
+                "x-amazon-apigateway-authtype": "cognito_user_pools",
+                "x-amazon-apigateway-authorizer": {
+                    "type": "cognito_user_pools",
+                    "x-syndicate-cognito-userpool-names": [
+                        "${booking_userpool}"
+                    ]
+                }
+            }
+        }
+    }
+}

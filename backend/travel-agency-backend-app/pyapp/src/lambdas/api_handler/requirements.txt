@@ -1,0 +1,4 @@
+pwnedpasswords
+PyYAML
+fpdf2
+XlsxWriter

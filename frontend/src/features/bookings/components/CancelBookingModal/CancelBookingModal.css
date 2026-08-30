@@ -1,0 +1,268 @@
+.cancel-booking-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(11, 56, 87, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 300);
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.cancel-booking-modal-shell {
+  width: 100%;
+  max-width: 544px;
+  background-color: var(--color-white, #ffffff);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  position: relative;
+  font-family: 'Nunito', sans-serif;
+  animation: slideUp 0.2s ease-out;
+}
+
+/* =========================================
+   HEADER BAR
+   Title -> Content: 32px
+   ========================================= */
+.cancel-booking-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  width: 100%;
+}
+
+.cancel-booking-modal-title {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--color-blue-09, #0b3857);
+}
+
+.cancel-booking-modal-close-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--color-blue-09, #0b3857);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 4px);
+  transition: background-color 0.2s;
+}
+
+.cancel-booking-modal-close-btn:hover {
+  background-color: var(--color-blue-03, #e7f9ff);
+}
+
+/* =========================================
+   BANNER (BG'Lİ DESC)
+   ========================================= */
+.cancel-booking-banner {
+  width: 100%;
+  border-radius: var(--radius-md, 8px);
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.cancel-booking-banner--yellow {
+  background-color: var(--color-yellow-01, #fffad3);
+  color: var(--color-blue-09, #0b3857);
+}
+
+.cancel-booking-banner--red {
+  background-color: #fce9ed;
+  color: #b70b0b;
+}
+
+/* =========================================
+   CONFIRMATION BODY TEXT
+   ========================================= */
+.cancel-booking-modal-body {
+  width: 100%;
+  margin: 0 0 32px 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--color-blue-09, #0b3857);
+  text-align: left;
+}
+
+.cancel-booking-modal-body strong {
+  font-weight: 700;
+  color: var(--color-blue-09, #0b3857);
+}
+
+/* =========================================
+   CUSTOMER ACTION BUTTONS
+   ========================================= */
+.cancel-booking-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+.cancel-booking-modal-actions .btn {
+  min-width: 156px;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   TRAVEL AGENT MODE STYLES (FIGMA ENGINEERED)
+   ========================================= */
+.agent-cancel-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+}
+
+.cancel-booking-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cancel-booking-section--reason {
+  gap: 4px;
+}
+
+.cancel-booking-section-title {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 32px;
+  color: var(--color-blue-09, #0b3857);
+}
+
+.cancel-booking-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.cancel-booking-detail-row {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.cancel-booking-detail-label {
+  width: 120px;
+  flex-shrink: 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  color: var(--color-blue-09, #0b3857);
+  margin: 0;
+}
+
+.cancel-booking-detail-value {
+  font-family: 'Nunito', sans-serif;
+  color: var(--color-blue-09, #0b3857);
+  font-weight: 400;
+  margin: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.agent-cancel-modal-body .select-input {
+  min-height: 56px;
+  padding: 16px 12px;
+  border: 1px solid var(--color-grey-05, #e0e0e0);
+  border-radius: var(--radius-md, 8px);
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-blue-09, #0b3857);
+  width: 100%;
+}
+
+.cancel-booking-agent-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+}
+
+.cancel-booking-agent-actions .btn {
+  min-width: 156px;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   MOBILE RESPONSIVE BREAKPOINTS
+   ========================================= */
+@media (max-width: 600px) {
+  .cancel-booking-modal-shell {
+    max-width: calc(100vw - 32px);
+    padding: 20px 16px;
+  }
+
+  .cancel-booking-agent-actions,
+  .cancel-booking-modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .cancel-booking-agent-actions .btn,
+  .cancel-booking-modal-actions .btn {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .cancel-booking-detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .cancel-booking-detail-label {
+    width: auto;
+  }
+
+  .agent-cancel-modal-body {
+    gap: 24px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,212 @@
+/* ============================================================
+   AuthLayout.css — Shared Auth Page Geometry
+   Single source of truth for Register, Login, and future auth pages.
+   Each form imports this file and uses .auth-* class names.
+   Form-specific overrides use .register-form / .login-form parent scope.
+   ============================================================ */
+
+/* Page Wrapper */
+.auth-page-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--color-blue-03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 40px;
+  box-sizing: border-box;
+}
+
+/* Grid Container: 664px left card + 1fr right hero */
+.auth-container {
+  display: grid;
+  grid-template-columns: 664px 1fr;
+  gap: var(--spacing-lg);
+  width: 100%;
+  max-width: 100%;
+  align-items: stretch;
+  min-height: calc(100vh - 64px);
+}
+
+/* Left Card: 664px, radius 32px (var(--radius-3xl)) */
+.auth-card {
+  width: 664px;
+  max-width: 100%;
+  background-color: var(--color-white);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  opacity: 1;
+}
+
+/* Card Content: flex layout only — padding is defined per-form */
+.auth-card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+}
+
+/* Header Group */
+.auth-header-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 496px;
+}
+
+.auth-overline {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0px;
+  color: var(--color-blue-09);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.auth-title {
+  font-family: var(--heading);
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 40px;
+  letter-spacing: 0px;
+  color: var(--color-blue-09);
+  margin: 0;
+}
+
+/* Inputs Group: 40px margin-top from header, 496px max-width */
+.auth-inputs-group {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  max-width: 496px;
+  width: 100%;
+}
+
+/* Bottom Navigation Link */
+.auth-nav-link-container {
+  margin-top: var(--spacing-md);
+  text-align: left;
+  font-family: 'Nunito', var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0%;
+  color: var(--color-blue-09);
+}
+
+.auth-nav-link {
+  font-family: 'Nunito', var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0%;
+  text-decoration: underline;
+  text-decoration-style: solid;
+  color: var(--color-blue-05);
+  margin-left: 2px;
+  cursor: pointer;
+}
+
+.auth-nav-link:hover {
+  opacity: 0.85;
+}
+
+/* ========================
+   Shared Responsive Breakpoints
+   ======================== */
+
+/* Laptop < 1440px or height <= 850px */
+@media (max-width: 1439px), (max-height: 850px) {
+  .auth-page-wrapper {
+    padding: 20px 28px;
+  }
+
+  .auth-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-md);
+    min-height: calc(100vh - 40px);
+  }
+
+  .auth-card {
+    width: 100%;
+  }
+
+  .auth-title {
+    font-size: 23px;
+    line-height: 34px;
+  }
+
+  .auth-inputs-group {
+    margin-top: 24px;
+  }
+
+  .auth-card .form-group {
+    margin-bottom: 12px;
+  }
+
+  .auth-card .input {
+    height: 50px;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .auth-card .label {
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .auth-nav-link-container {
+    margin-top: 14px;
+  }
+}
+
+/* 1360px or height <= 768px */
+@media (max-width: 1366px), (max-height: 768px) {
+  .auth-page-wrapper {
+    padding: 16px 24px;
+  }
+
+  .auth-container {
+    min-height: calc(100vh - 32px);
+  }
+
+  .auth-inputs-group {
+    margin-top: 18px;
+  }
+
+  .auth-card .form-group {
+    margin-bottom: 10px;
+  }
+
+  .auth-card .input {
+    height: 48px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+  }
+
+  .auth-card .btn {
+    padding: 10px 18px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Below 960px: single column, hide hero */
+@media (max-width: 960px) {
+  .auth-container {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 664px;
+    margin: 0 auto;
+  }
+}

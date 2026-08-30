@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "name": "booking_status_updater",
+  "func_name": "handler.lambda_handler",
+  "resource_type": "lambda",
+  "iam_role_name": "booking-status-updater-role",
+  "runtime": "python3.10",
+  "memory": 128,
+  "timeout": 60,
+  "lambda_path": "lambdas/booking_status_updater",
+  "dependencies": [
+    {
+      "resource_name": "${bookings_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "booking-completion-schedule",
+      "resource_type": "eventbridge_rule"
+    },
+    {
+      "resource_name": "${reports_queue}",
+      "resource_type": "sqs_queue"
+    }
+  ],
+  "event_sources": [
+    {
+      "resource_type": "eventbridge_rule_trigger",
+      "target_rule": "booking-completion-schedule",
+      "input": {
+        "source": "EPMTPETA-11673",
+        "action": "finish-completed-bookings"
+      }
+    }
+  ],
+  "env_variables": {
+    "bookings_table": "${bookings_table}",
+    "reports_queue_url": "https://sqs.${region}.amazonaws.com/${account_id}/${reports_queue}",
+    "region": "${region}"
+  },
+  "publish_version": true,
+  "alias": "${lambdas_alias_name}",
+  "ephemeral_storage": 512,
+  "logs_expiration": "${logs_expiration}",
+  "tags": {}
+}

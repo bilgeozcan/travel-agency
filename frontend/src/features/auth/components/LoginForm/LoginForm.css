@@ -1,0 +1,87 @@
+/* LoginForm-specific styles (geometry shared via AuthLayout.css) */
+
+/* Login card-content padding: 54px vertical, 84px horizontal */
+.login-form .auth-card-content {
+  padding: 54px 84px;
+  justify-content: center;
+}
+
+/* Login overline line-height differs from register (24px vs 20px) */
+.login-form .auth-overline {
+  line-height: 24px;
+}
+
+/* Error banner for incorrect credentials */
+.login-error-banner {
+  font-family: 'Nunito', var(--sans);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--color-red-04);
+  background-color: var(--color-red-03);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+/* Password Group: wraps input + forgot password link together */
+.login-form .password-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 496px;
+  margin-bottom: 16px;
+}
+
+/* Remove margin-bottom from .form-group inside .password-group for exact 4px gap */
+.login-form .password-group .form-group {
+  margin-bottom: 0;
+}
+
+/* Forgot password link placed under password input (exact 4px gap) */
+.forgot-password-container {
+  margin-top: 4px;
+  text-align: left;
+}
+
+.forgot-password-link {
+  font-family: 'Nunito', var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-blue-05);
+  text-decoration: underline;
+  text-decoration-style: solid;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.forgot-password-link:hover {
+  opacity: 0.85;
+}
+
+/* ========================
+   Login-specific Responsive Overrides
+   ======================== */
+
+@media (max-width: 1439px),
+(max-height: 850px) {
+  .login-form .auth-card-content {
+    padding: 38px 56px;
+  }
+}
+
+@media (max-width: 1366px),
+(max-height: 768px) {
+  .login-form .auth-card-content {
+    padding: 30px 48px;
+  }
+}
+
+@media (max-width: 960px) {
+  .login-form .auth-card-content {
+    padding: 40px 24px;
+  }
+}

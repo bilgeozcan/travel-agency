@@ -1,0 +1,128 @@
+/*
+ * ReportFilterBar – Layout CSS
+ * Follows the same filter-bar pattern as ToursFilterPanel.
+ * All tokens sourced from :root in index.css (no hardcoded hex/px).
+ */
+
+/* ── Container ───────────────────────────────────────────────────────────── */
+.report-filter-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-sizing: border-box;
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  /* Required: child popovers are position:absolute and must overflow the bar */
+  overflow: visible;
+}
+
+/* ── Individual filter items ─────────────────────────────────────────────── */
+.report-filter-bar__item {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+}
+
+/* Flex ratios mirror the Figma proportions (type wider, action fixed) */
+.report-filter-bar__item--type {
+  flex: 3 1 0;
+  min-width: 180px;
+}
+
+.report-filter-bar__item--period {
+  flex: 3 1 0;
+  min-width: 180px;
+  cursor: pointer;
+}
+
+.report-filter-bar__item--location {
+  flex: 3 1 0;
+  min-width: 180px;
+  cursor: pointer;
+}
+
+/* ── Reset default margins and enforce 56px height alignment ────────────── */
+.report-filter-bar .form-group,
+.report-filter-bar .select-group {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.report-filter-bar input,
+.report-filter-bar .select-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 56px;
+  min-height: 56px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-grey-05);
+  background-color: var(--color-white);
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--color-blue-09);
+  cursor: pointer;
+}
+
+.report-filter-bar .btn {
+  height: 56px;
+  min-height: 56px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--spacing-xl);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+
+/* ── Active (open popover) highlight ─────────────────────────────────────── */
+.report-filter-bar__item.is-active .input-wrapper {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+/* ── Chevron icon inside InputField's rightElement slot ──────────────────── */
+.report-filter-bar__chevron {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.report-filter-bar__location-error {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+  color: var(--color-error, #b42318);
+  font-size: 12px;
+}
+
+.report-filter-bar__location-error button {
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: var(--font-weight-bold);
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* ── Responsive: stack vertically on narrow viewports ───────────────────── */
+@media (max-width: 768px) {
+  .report-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .report-filter-bar__item--action {
+    align-self: flex-end;
+  }
+}

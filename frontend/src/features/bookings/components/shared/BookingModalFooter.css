@@ -1,0 +1,32 @@
+.booking-modal-shared-footer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.booking-modal-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px !important;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.booking-modal-price-label,
+.booking-modal-price-value {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0;
+  vertical-align: middle;
+  color: var(--color-blue-09, #0b3857);
+}
+
+.booking-modal-footer-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+

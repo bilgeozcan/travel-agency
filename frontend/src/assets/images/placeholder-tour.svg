@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" fill="none">
+  <rect width="800" height="500" fill="#E2E8F0"/>
+  <path d="M360 210C360 221.046 351.046 230 340 230C328.954 230 320 221.046 320 210C320 198.954 328.954 190 340 190C351.046 190 360 198.954 360 210Z" fill="#94A3B8"/>
+  <path d="M260 330L340 240L420 310L480 250L540 330H260Z" fill="#94A3B8"/>
+  <text x="400" y="370" font-family="Nunito, sans-serif" font-size="20" font-weight="600" fill="#64748B" text-anchor="middle">Travel Tour</text>
+</svg>

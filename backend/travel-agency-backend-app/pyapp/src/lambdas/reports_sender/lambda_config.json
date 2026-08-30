@@ -1,0 +1,51 @@
+{
+  "version": "1.0",
+  "name": "reports_sender",
+  "func_name": "handler.lambda_handler",
+  "resource_type": "lambda",
+  "iam_role_name": "reports-sender-role",
+  "runtime": "python3.10",
+  "memory": 256,
+  "timeout": 60,
+  "lambda_path": "lambdas/reports_sender",
+  "dependencies": [
+    {
+      "resource_name": "${reports_table}",
+      "resource_type": "dynamodb_table"
+    },
+    {
+      "resource_name": "${booking_userpool}",
+      "resource_type": "cognito_idp"
+    },
+    {
+      "resource_name": "reports-sender-schedule",
+      "resource_type": "eventbridge_rule"
+    }
+  ],
+  "event_sources": [
+    {
+      "resource_type": "eventbridge_rule_trigger",
+      "target_rule": "reports-sender-schedule",
+      "input": {
+        "source": "EPMTPETA-12603",
+        "action": "send-scheduled-reports"
+      }
+    }
+  ],
+  "env_variables": {
+    "reports_table": "${reports_table}",
+    "cup_id": {
+      "resource_name": "${booking_userpool}",
+      "resource_type": "cognito_idp",
+      "parameter": "id"
+    },
+    "sender_email": "${sender_email}",
+    "recipient_email": "${recipient_email}",
+    "region": "${region}"
+  },
+  "publish_version": true,
+  "alias": "${lambdas_alias_name}",
+  "ephemeral_storage": 512,
+  "logs_expiration": "${logs_expiration}",
+  "tags": {}
+}

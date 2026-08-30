@@ -1,0 +1,209 @@
+.booking-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-bg-overlay);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+  box-sizing: border-box;
+}
+
+.booking-modal-card {
+  width: 544px;
+  max-width: 100%;
+  max-height: min(836px, 85vh);
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+  /* Strict geometry - NOTHING overflows the card */
+}
+
+.booking-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-xl);
+  /* EXACT 32px to first content */
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.booking-modal-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.booking-modal-hotel-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.booking-modal-hotel-name {
+  font-family: 'Nunito', sans-serif;
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-blue-09);
+  margin: 0;
+}
+
+.booking-modal-rating-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  color: var(--color-grey-07);
+}
+
+.booking-modal-location {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  color: var(--color-grey-07);
+  margin: 0;
+}
+
+.booking-modal-close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.booking-modal-close-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.booking-modal-close-btn:hover {
+  opacity: 0.7;
+}
+
+.booking-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  /* Body scrolls smoothly, header and footer stay fixed */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  /* EXACT 24px between main groups */
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 4px;
+}
+
+.booking-modal-tour-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-modal-section-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-blue-09);
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  /* EXACT 16px to first_name last_name group */
+}
+
+.booking-modal-selectors-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: 0;
+}
+
+.booking-modal-selector-item {
+  position: relative;
+  min-height: 56px;
+  z-index: var(--z-base);
+}
+
+.booking-modal-selector-item--active {
+  z-index: var(--z-dropdown);
+}
+
+.booking-modal-selector-item .guests-popover-card,
+.booking-modal-selector-item .calendar-duration-popover-card {
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: var(--shadow-popover), 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.booking-modal-selector-item .guests-popover-container,
+.booking-modal-selector-item .guests-dropdown-item {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.booking-modal-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-lg);
+  /* EXACT 24px gap from body to footer */
+  padding-top: 0;
+}
+
+/* ─── Portal-rendered Popover Wrapper ─── */
+.booking-popover-portal {
+  position: fixed;
+  top: var(--popover-top);
+  left: max(16px, min(var(--popover-left), calc(100vw - var(--popover-width) - 16px)));
+  width: min(var(--popover-width), calc(100vw - 32px));
+  max-height: calc(100vh - var(--popover-top) - 16px);
+  box-sizing: border-box;
+  z-index: calc(var(--z-modal) + 10);
+  pointer-events: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.booking-popover-portal > * {
+  pointer-events: auto;
+}
+
+/* Override default absolute positioning inside portal context */
+.booking-popover-portal .calendar-duration-popover {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: auto;
+}
+
+.booking-popover-portal .guests-popover-card {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  pointer-events: auto;
+}

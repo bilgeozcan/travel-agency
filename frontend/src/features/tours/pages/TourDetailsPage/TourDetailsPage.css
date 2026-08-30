@@ -1,0 +1,150 @@
+.tour-details-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 13px 40px 40px 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+@media (max-width: 900px) {
+  .tour-details-page {
+    padding: 24px var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .tour-details-page {
+    padding: 16px;
+    gap: 16px;
+  }
+}
+
+.tour-details-page__breadcrumb {
+  margin-bottom: calc(63px - 40px);
+}
+
+.tour-details-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  align-self: flex-start;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-primary);
+}
+
+.tour-details-page__back-icon {
+  width: 16px;
+  height: 16px;
+  transform: rotate(-90deg);
+}
+
+.tour-details-page__hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.tour-details-page__hero-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.tour-details-page__location {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--color-grey-07);
+  margin: 0;
+}
+
+.tour-details-page__location img {
+  width: 16px;
+  height: 16px;
+}
+
+.tour-details-page__rating {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-xs);
+}
+
+.tour-details-page__rating-value {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--color-blue-09);
+}
+
+.tour-details-page__reviews-count {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--color-grey-07);
+}
+
+.tour-details-page__body {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Fixed 40px gutter simulated via calc() + margin (not the `gap` shorthand)
+   so the two boxes keep an exact 40px gap while filling the full row width,
+   at the same 64.5% / 35.5% ratio as the Figma design (848px / 466px). */
+.tour-details-page__body>*:first-child {
+  flex: 1 1 calc(64.5% - 20px);
+  margin-right: 40px;
+  min-width: 300px;
+}
+
+.tour-details-page__body>*:last-child {
+  flex: 1 1 calc(35.5% - 20px);
+  min-width: 300px;
+}
+
+@media (max-width: 1024px) {
+  .tour-details-page {
+    padding: 24px var(--spacing-md);
+  }
+
+  .tour-details-page__body {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .tour-details-page__body>*:first-child {
+    flex: 1 1 100%;
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .tour-details-page__body>*:last-child {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .tour-details-page {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .tour-details-page__hero {
+    flex-direction: column;
+  }
+
+  .tour-details-page__rating {
+    align-items: flex-start;
+  }
+}

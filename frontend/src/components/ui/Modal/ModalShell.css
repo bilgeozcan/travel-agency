@@ -1,0 +1,70 @@
+.modal-shell-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(11, 56, 87, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 300);
+  padding: 16px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-shell-container {
+  width: 100%;
+  max-width: 544px;
+  background-color: var(--color-white, #ffffff);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  position: relative;
+  font-family: 'Nunito', sans-serif;
+  animation: slideUp 0.2s ease-out;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.modal-shell-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.modal-shell-title {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--color-blue-09, #0b3857);
+}
+
+.modal-shell-close-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.modal-shell-close-btn img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.modal-shell-close-btn:hover {
+  opacity: 0.7;
+}

@@ -1,0 +1,12 @@
+{
+  "booking-status-updater-role": {
+    "predefined_policies": [],
+    "principal_service": "lambda",
+    "custom_policies": [
+      "booking-status-updater-policy"
+    ],
+    "permissions_boundary": "arn:aws:iam::364410974634:policy/eo_role_boundary",
+    "resource_type": "iam_role",
+    "tags": {}
+  }
+}

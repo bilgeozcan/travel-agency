@@ -1,0 +1,138 @@
+/* RegisterForm-specific styles (geometry shared via AuthLayout.css) */
+
+/* Register card-content padding: 54px vertical, 84px horizontal */
+.register-form .auth-card-content {
+  padding: 38px 84px;
+  justify-content: center;
+}
+
+/* Name Row: First Name + Last Name side-by-side */
+.name-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 240px));
+  gap: 16px;
+  width: 100%;
+  max-width: 496px;
+}
+
+/* Password Group: wraps input + requirements list together */
+.password-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 496px;
+  margin-bottom: 16px;
+}
+
+/* Remove margin-bottom from .form-group inside .password-group */
+.password-group .form-group {
+  margin-bottom: 0;
+}
+
+/* Remove margin-bottom from last password-group before submit button */
+.register-form .password-group:last-of-type {
+  margin-bottom: 0;
+}
+
+/* Submit button: exact margin-top 40px */
+.register-form .btn {
+  margin-top: 24px;
+}
+
+/* Password Requirements List: 4px from input */
+.password-requirements-list {
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding: 0;
+}
+
+.req-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0%;
+  color: var(--color-grey-07);
+  margin-bottom: 4px;
+  transition: color 0.2s ease;
+}
+
+/* 8px x 8px circles */
+.req-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-grey-07);
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+}
+
+.req-item.valid {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.req-item.valid .req-bullet {
+  background-color: var(--color-success);
+}
+
+.req-item.invalid {
+  color: var(--color-error);
+}
+
+.req-item.invalid .req-bullet {
+  background-color: var(--color-error);
+}
+
+/* ========================
+   Register-specific Responsive Overrides
+   ======================== */
+
+@media (max-width: 1439px),
+(max-height: 850px) {
+  .register-form .auth-card-content {
+    padding: 38px 56px;
+  }
+
+  .register-form .password-group {
+    margin-bottom: 12px;
+  }
+
+  .register-form .btn {
+    margin-top: 24px;
+  }
+
+  .register-form .req-item {
+    margin-bottom: 3px;
+    font-size: 12px;
+    line-height: 15px;
+  }
+}
+
+@media (max-width: 1366px),
+(max-height: 768px) {
+  .register-form .auth-card-content {
+    padding: 30px 48px;
+  }
+
+  .register-form .password-group {
+    margin-bottom: 10px;
+  }
+
+  .register-form .btn {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 960px) {
+  .register-form .auth-card-content {
+    padding: 28px 24px;
+  }
+
+  .name-row {
+    grid-template-columns: 1fr;
+  }
+}

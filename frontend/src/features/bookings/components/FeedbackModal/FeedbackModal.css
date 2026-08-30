@@ -1,0 +1,201 @@
+.feedback-modal-shell {
+  max-width: 544px;
+  width: 100%;
+}
+
+/* Modal Shell Header title & spacing */
+.feedback-modal-shell .modal-shell-header {
+  margin-bottom: 32px;
+}
+
+.feedback-modal-shell .modal-shell-title {
+  font-family: 'Nunito', sans-serif;
+  font-weight: var(--font-weight-bold, 700);
+  font-size: 24px;
+  line-height: 40px;
+  letter-spacing: 0px;
+  color: var(--color-text-primary, var(--color-blue-09));
+}
+
+.feedback-modal-content {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* Rating Section */
+.feedback-rating-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* "Please rate your experience*" -> Stars: 4px */
+}
+
+.feedback-modal-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: var(--font-weight-extrabold, 800);
+  line-height: 24px;
+  letter-spacing: 0px;
+  color: var(--color-text-primary, var(--color-blue-09));
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.feedback-required-asterisk {
+  color: var(--color-error, var(--color-red-04, #b70b0b));
+}
+
+.feedback-stars-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.feedback-stars-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px; /* Gap between star icons: 16px */
+}
+
+.feedback-star-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 4px);
+  transition: transform 0.15s ease;
+  outline: none;
+}
+
+.feedback-star-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-primary, #027eac);
+}
+
+.feedback-star-btn:hover {
+  transform: scale(1.12);
+}
+
+.feedback-star-icon {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+.feedback-star-icon--filled {
+  color: var(--color-blue-09, #0b3857);
+}
+
+.feedback-stars-text {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-secondary, #677883);
+  margin-left: auto;
+  text-align: right;
+}
+
+/* Comment Section (Stars -> Comment label: 16px) */
+.feedback-comment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Comment label -> Comment area: 4px */
+  margin-top: 16px; /* Stars -> Comment: 16px */
+}
+
+/* Figma Comment Area: width 496, height 100, padding 16, border Grey 05, border-radius 8px */
+.feedback-comment-container {
+  width: 100%;
+  height: 100px;
+  padding: 16px;
+  border: 1px solid var(--color-grey-05, #d3e1ed);
+  border-radius: var(--radius-md, 8px);
+  background-color: var(--color-bg-page, #ffffff);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.feedback-comment-container:focus-within {
+  border-color: var(--color-primary, #027eac);
+  box-shadow: none;
+}
+
+.feedback-comment-container--at-limit {
+  border-color: var(--color-error, var(--color-red-04, #b70b0b));
+}
+
+.feedback-comment-textarea {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-primary, #0b3857);
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  resize: none;
+  outline: none;
+  width: 100%;
+  flex: 1;
+}
+
+.feedback-comment-textarea::placeholder {
+  color: var(--color-grey-06, #a2aeb9);
+}
+
+.feedback-char-counter {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #677883);
+  text-align: right;
+  align-self: flex-end;
+}
+
+.feedback-char-counter--at-limit {
+  color: var(--color-error, var(--color-red-04, #b70b0b));
+  font-weight: var(--font-weight-bold, 700);
+}
+
+/* Low Rating Warning Banner */
+.feedback-warning-message {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold, 600);
+  line-height: 18px;
+  color: var(--color-error, var(--color-red-04, #b70b0b));
+  margin-top: 6px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+/* Action Buttons Footer (Comment area -> Buttons: 32px) */
+.feedback-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Right-aligned */
+  gap: 8px; /* Buttons gap: 8px */
+  margin-top: 32px; /* Comment area -> Buttons: 32px */
+}
+
+.feedback-modal-actions button {
+  min-width: 76px;
+  height: 40px;
+  border-radius: 8px;
+  padding: 8px 16px;
+  gap: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-modal-actions button.btn-outline {
+  border-width: 2px;
+}

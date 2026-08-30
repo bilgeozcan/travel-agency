@@ -1,0 +1,19 @@
+.rating-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.rating-stars__icon {
+  width: 16px;
+  height: 16px;
+}
+
+.rating-stars--md .rating-stars__icon {
+  width: 20px;
+  height: 20px;
+}
+
+.rating-stars__icon--empty {
+  opacity: 0.25;
+}

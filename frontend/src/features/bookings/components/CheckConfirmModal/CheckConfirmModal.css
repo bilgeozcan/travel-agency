@@ -1,0 +1,40 @@
+.check-confirm-modal-shell {
+  max-width: 544px;
+  width: 100%;
+  padding: 24px; /* Modal padding: 24px */
+  border-radius: var(--radius-xl, 16px);
+  font-family: 'Nunito', sans-serif;
+  background-color: var(--color-white, #ffffff);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
+
+.check-confirm-modal-shell .modal-shell-header {
+  display: none; /* We use BookingModalHeader internally for exact Figma header layout */
+}
+
+.check-confirm-modal-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* 1. Header (Tour details) -> Booking details: EXACT 32px */
+.check-confirm-modal-body .booking-modal-header {
+  margin-bottom: 32px;
+}
+
+/* 2. Booking details -> Documents: EXACT 24px */
+.check-confirm-booking-details {
+  margin-bottom: 24px;
+}
+
+/* 3. Documents Section */
+.check-confirm-documents {
+  margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+  .check-confirm-modal-shell {
+    padding: 20px 16px;
+  }
+}

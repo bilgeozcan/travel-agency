@@ -1,0 +1,78 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+.venv*/
+env/
+
+# Syndicate config and state (contains credentials - never commit!)
+.syndicate-config-*/
+.syndicate
+.syndicate_venv
+syndicate.yml
+syndicate_aliases.yml
+syndicate_aliases.yaml
+
+# Syndicate build artifacts
+bundles/
+logs/
+# aws-syndicate downloads lambda/layer packages to whatever directory 'syndicate
+# deploy' was run from and never cleans them up, so this is repo-wide, not backend-only
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+
+# OS / Env / Agents / Scripts
+.DS_Store
+*.log
+.env*
+.agents/
+scripts/
+docs
+scratch/
+mcp-config.json
+test-results/
+deployment-guide
+# --- PERSONAL PUBLIC REPO SAFETY ---
+.venv/
+**/.venv/
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.env
+.env.*
+!.env.example
+.aws/
+**/.aws/
+.syndicate/
+**/.syndicate/
+.syndicate-config-*/
+**/.syndicate-config-*/
+bundles/
+**/bundles/
+__pycache__/
+**/__pycache__/
+.pytest_cache/
+**/.pytest_cache/
+*.pyc
+*.pem
+*.key
+*.p12
+*.pfx

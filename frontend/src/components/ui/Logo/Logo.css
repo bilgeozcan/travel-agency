@@ -1,0 +1,58 @@
+.logo-container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-family: 'Nunito', var(--heading), sans-serif;
+  font-weight: 700;
+  user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.logo-white {
+  color: var(--color-white);
+}
+
+.logo-dark {
+  color: var(--color-blue-09);
+}
+
+.logo-blue {
+  color: var(--color-blue-05);
+}
+
+.logo-sm {
+  font-size: 18px;
+  line-height: 24px;
+}
+
+.logo-sm .logo-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.logo-md {
+  font-size: 24px;
+  line-height: 100%;
+}
+
+.logo-md .logo-icon {
+  width: 28px;
+  height: 40px;
+}
+
+.logo-lg {
+  font-size: 32px;
+  line-height: 100%;
+}
+
+.logo-lg .logo-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.logo-icon {
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}

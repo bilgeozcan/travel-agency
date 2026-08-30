@@ -1,0 +1,346 @@
+.tour-booking-card {
+  background-color: var(--color-white);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(2, 126, 172, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 16px;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+  font-family: 'Nunito', sans-serif;
+  border: 1px solid var(--color-border-default, #D0D7DE);
+  transition: z-index 0.2s ease;
+}
+
+.tour-booking-card:hover,
+.tour-booking-card:focus-within {
+  z-index: 100;
+}
+
+/* =========================================
+   STEPPER CONTAINER
+   ========================================= */
+.tour-booking-stepper-container {
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   HEADER (IMAGE & TITLE)
+   ========================================= */
+.tour-booking-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+}
+
+.tour-booking-thumb-wrapper {
+  width: 72px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background-color: #E1E8ED;
+}
+
+.tour-booking-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tour-booking-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #CBD5E1;
+}
+
+.tour-booking-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.tour-booking-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-blue-09);
+}
+
+.tour-booking-location-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* =========================================
+   COLUMNS (TOUR DETAILS & TRAVEL AGENT)
+   ========================================= */
+.tour-booking-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 0;
+}
+
+@media (max-width: 640px) {
+  .tour-booking-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tour-booking-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.col-heading {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-blue-09);
+  text-align: left;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  color: var(--color-blue-09) !important;
+  text-align: left !important;
+}
+
+.info-item img,
+.info-item svg {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.messenger-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+/* =========================================
+   FOOTER (CANCELLATION INFO & ACTIONS)
+   ========================================= */
+.tour-booking-footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  gap: 12px;
+  margin-top: auto;
+  min-height: 40px;
+}
+
+.tour-booking-cancellation-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  text-align: left;
+}
+
+.cancellation-line {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+}
+
+.cancellation-label {
+  font-weight: 700;
+  color: var(--color-error);
+}
+
+.cancellation-value {
+  color: var(--color-error);
+}
+
+.tour-booking-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+
+
+/* =========================================
+   DOCUMENT REJECTION BANNER
+   ========================================= */
+.tour-booking-doc-rejection-banner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+  font-size: var(--font-size-caption);
+  text-align: left;
+}
+
+.tour-booking-doc-rejection-icon {
+  display: none;
+}
+
+.tour-booking-doc-rejection-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xs);
+}
+
+.tour-booking-doc-rejection-content strong {
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+  color: var(--color-error);
+}
+
+.tour-booking-doc-rejection-content p {
+  margin: 0;
+  font-size: var(--font-size-caption);
+  color: var(--color-error);
+  line-height: 1.5;
+}
+
+/* =========================================
+   TOOLTIP POPOVER (CHECK & CONFIRM DISABLED)
+   ========================================= */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  z-index: 200;
+}
+
+.tooltip-wrapper:hover {
+  z-index: 300;
+}
+
+.tooltip-wrapper button:disabled {
+  pointer-events: none;
+}
+
+.tooltip-wrapper .tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 153px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  color: var(--color-blue-09, #0b3857);
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0px 4px 16px rgba(11, 56, 87, 0.18);
+  z-index: var(--z-popover, 400);
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+  text-align: left;
+}
+
+/* White Arrow pointing UP (-180deg) to button */
+.tooltip-wrapper .tooltip-text::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 28px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #ffffff;
+}
+
+.tooltip-wrapper:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* =========================================
+   RESPONSIVE – ≤640px (mobile)
+   ========================================= */
+@media (max-width: 640px) {
+  /* Kart padding'i daralt */
+  .tour-booking-card {
+    padding: 16px;
+    gap: 12px;
+    border-radius: 12px;
+  }
+
+  /* Thumbnail biraz küçülsün */
+  .tour-booking-thumb-wrapper {
+    width: 56px;
+    height: 42px;
+  }
+
+  .tour-booking-title {
+    font-size: 14px;
+  }
+
+  /* Footer: butonlar alt satıra geçsin, sağa hizalı */
+  .tour-booking-footer {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    min-height: auto;
+  }
+
+  .tour-booking-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    margin-left: 0;
+  }
+
+  /* İptal bilgisi solda kalsın */
+  .tour-booking-cancellation-info {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   RESPONSIVE – ≤480px (very small)
+   ========================================= */
+@media (max-width: 480px) {
+  /* Stepper etiket fontunu küçült */
+  .booking-step-label {
+    font-size: 11px;
+  }
+
+  .booking-step-icon {
+    width: 14px;
+    height: 14px;
+  }
+}

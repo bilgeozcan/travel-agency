@@ -1,0 +1,89 @@
+/* VerificationCodeScreen-specific styles (geometry shared via AuthLayout.css) */
+
+/* Card content padding: 54px vertical, 84px horizontal */
+.verification-code-form .auth-card-content {
+  padding: 54px 84px;
+  justify-content: center;
+}
+
+/* Subtitle description beneath header title */
+.verification-code-description {
+  font-family: 'Nunito', var(--sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-blue-09);
+  margin: 12px 0 0 0;
+  max-width: 496px;
+}
+
+/* Remove default margin-bottom from .form-group for custom resend spacing */
+.verification-code-form .form-group {
+  margin-bottom: 0;
+}
+
+/* Resend container: 4px distance beneath verification code input */
+.resend-container {
+  margin-top: 4px;
+  text-align: left;
+}
+
+.resend-text {
+  font-family: 'Nunito', var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-grey-07);
+}
+
+.resend-link {
+  font-family: 'Nunito', var(--sans);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  text-decoration: underline;
+  color: var(--color-blue-05);
+  cursor: pointer;
+  margin-left: 2px;
+}
+
+.resend-link:hover {
+  opacity: 0.85;
+}
+
+/* Continue button: exact 40px distance from input container */
+.verification-code-form .btn {
+  margin-top: 40px;
+}
+
+/* ========================
+   Responsive Overrides
+   ======================== */
+
+@media (max-width: 1439px),
+(max-height: 850px) {
+  .verification-code-form .auth-card-content {
+    padding: 38px 56px;
+  }
+
+  .verification-code-form .btn {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 1366px),
+(max-height: 768px) {
+  .verification-code-form .auth-card-content {
+    padding: 30px 48px;
+  }
+
+  .verification-code-form .btn {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 960px) {
+  .verification-code-form .auth-card-content {
+    padding: 40px 24px;
+  }
+}

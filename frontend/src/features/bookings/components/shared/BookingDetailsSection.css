@@ -1,0 +1,61 @@
+.booking-details-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  font-family: 'Nunito', sans-serif;
+}
+
+.booking-details-section-title {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 28px;
+  color: var(--color-navy-09, #0b3857);
+}
+
+.booking-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.booking-detail-row {
+  display: flex;
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.booking-detail-label {
+  width: 140px;
+  flex-shrink: 0;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  color: var(--color-navy-09, #0b3857);
+  margin: 0;
+}
+
+.booking-detail-value {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  color: var(--color-navy-09, #0b3857);
+  margin: 0;
+  flex: 1;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .booking-detail-row {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .booking-detail-label {
+    width: auto;
+  }
+}
