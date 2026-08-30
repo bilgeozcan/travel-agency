@@ -120,7 +120,7 @@ def _build_expired_refresh_cookie() -> str:
         f"{_REFRESH_COOKIE_NAME}=; "
         "Max-Age=0; "
         "Expires=Thu, 01 Jan 1970 00:00:00 GMT; "
-        "Path=/; Secure; HttpOnly; SameSite=Strict"
+        "Path=/; Secure; HttpOnly; SameSite=None"
     )
 
 

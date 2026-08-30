@@ -90,7 +90,7 @@ def test_sign_out_revokes_token_and_clears_cookie(
     assert "Path=/" in expired_cookie
     assert "Secure" in expired_cookie
     assert "HttpOnly" in expired_cookie
-    assert "SameSite=Strict" in expired_cookie
+    assert "SameSite=None" in expired_cookie
     assert "Domain=" not in expired_cookie
 
     assert (
@@ -398,7 +398,7 @@ def test_cookie_clear_attributes_match_sign_in():
         "Path=/",
         "Secure",
         "HttpOnly",
-        "SameSite=Strict",
+        "SameSite=None",
     ):
         assert attribute in active_cookie
         assert attribute in expired_cookie

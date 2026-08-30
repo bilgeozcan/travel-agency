@@ -139,7 +139,7 @@ def test_missing_cookie_returns_401_and_expires_cookie():
     assert "Max-Age=0" in cookie
     assert "Secure" in cookie
     assert "HttpOnly" in cookie
-    assert "SameSite=Strict" in cookie
+    assert "SameSite=None" in cookie
 
 
 @patch.dict(

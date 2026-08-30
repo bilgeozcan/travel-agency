@@ -23,7 +23,7 @@ ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         "CORS_ALLOWED_ORIGINS",
-        "http://team3-frontend-bucket.s3-website.eu-west-3.amazonaws.com,http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173"
+        "http://team3-frontend-bucket.s3-website.eu-west-3.amazonaws.com,http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173,https://bilgeozcan.github.io"
     ).split(",")
     if origin.strip()
 ]

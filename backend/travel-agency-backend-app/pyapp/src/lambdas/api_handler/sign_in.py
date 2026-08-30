@@ -64,7 +64,7 @@ def _build_refresh_cookie(
     return (
         f"{_REFRESH_COOKIE_NAME}={refresh_token}; "
         f"Max-Age={_REFRESH_COOKIE_MAX_AGE_SECONDS}; "
-        "Path=/; Secure; HttpOnly; SameSite=Strict"
+        "Path=/; Secure; HttpOnly; SameSite=None"
     )
 
 

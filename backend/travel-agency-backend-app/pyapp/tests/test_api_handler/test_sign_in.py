@@ -182,7 +182,7 @@ class TestSignIn(unittest.TestCase):
         self.assertIn("Path=/", cookie)
         self.assertIn("Secure", cookie)
         self.assertIn("HttpOnly", cookie)
-        self.assertIn("SameSite=Strict", cookie)
+        self.assertIn("SameSite=None", cookie)
         self.assertNotIn("Domain=", cookie)
         self.assertEqual(
             response["headers"]["Cache-Control"],

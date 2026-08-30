@@ -99,7 +99,7 @@ def test_refresh_token_is_only_returned_in_secure_cookie(
     assert "Path=/" in cookie
     assert "Secure" in cookie
     assert "HttpOnly" in cookie
-    assert "SameSite=Strict" in cookie
+    assert "SameSite=None" in cookie
     assert "Domain=" not in cookie
 
     assert response["headers"]["Cache-Control"] == "no-store"

@@ -36,7 +36,7 @@ class InvalidRefreshTokenError(AuthenticationError):
 def _expired_refresh_cookie() -> str:
     return (
         f"{_REFRESH_COOKIE_NAME}=; "
-        "Max-Age=0; Path=/; Secure; HttpOnly; SameSite=Strict"
+        "Max-Age=0; Path=/; Secure; HttpOnly; SameSite=None"
     )
 
 
